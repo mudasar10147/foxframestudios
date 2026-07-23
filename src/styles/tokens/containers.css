@@ -1,0 +1,6 @@
+:root {
+  --container-width: 80rem; /* 1280px */
+  --section-width: 75rem; /* 1200px */
+  --content-width: 60rem; /* 960px */
+  --reading-width: 65ch;
+}

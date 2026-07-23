@@ -1,0 +1,135 @@
+@utility glass-card {
+  background: var(--glass-surface);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  box-shadow: var(--shadow-card);
+}
+
+@utility glow-border {
+  border: 1px solid var(--border-glow);
+  box-shadow: var(--shadow-glow);
+}
+
+@utility soft-glow {
+  box-shadow: var(--shadow-purple-glow);
+}
+
+@utility border-glow {
+  position: relative;
+}
+
+@utility button-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-glow);
+  background-color: var(--accent-primary);
+  color: var(--text-primary);
+  font-family: var(--font-family-sans);
+  font-size: var(--text-button-size);
+  line-height: var(--text-button-leading);
+  letter-spacing: var(--text-button-tracking);
+  font-weight: var(--text-button-weight);
+  box-shadow: var(--shadow-purple-glow);
+  transition: var(--transition-button);
+  cursor: pointer;
+}
+
+@utility button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-glass);
+  background: var(--glass-surface);
+  color: var(--text-primary);
+  font-family: var(--font-family-sans);
+  font-size: var(--text-button-size);
+  line-height: var(--text-button-leading);
+  letter-spacing: var(--text-button-tracking);
+  font-weight: var(--text-button-weight);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  transition: var(--transition-button);
+  cursor: pointer;
+}
+
+@utility noise-background {
+  isolation: isolate;
+}
+
+@utility grid-background {
+  isolation: isolate;
+}
+
+@utility glow-background {
+  isolation: isolate;
+}
+
+@utility particles-background {
+  isolation: isolate;
+}
+
+@utility animated-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift var(--duration-very-slow) var(--ease-luxury) infinite;
+}
+
+@utility transition-button {
+  transition: var(--transition-button);
+}
+
+@utility transition-card {
+  transition: var(--transition-card);
+}
+
+@utility transition-navbar {
+  transition: var(--transition-navbar);
+}
+
+@utility transition-image {
+  transition: var(--transition-image);
+}
+
+@utility transition-icon {
+  transition: var(--transition-icon);
+}
+
+@utility transition-section {
+  transition: var(--transition-section);
+}
+
+@utility z-background {
+  z-index: var(--z-background);
+}
+
+@utility z-content {
+  z-index: var(--z-content);
+}
+
+@utility z-cards {
+  z-index: var(--z-cards);
+}
+
+@utility z-navbar {
+  z-index: var(--z-navbar);
+}
+
+@utility z-overlay {
+  z-index: var(--z-overlay);
+}
+
+@utility z-modal {
+  z-index: var(--z-modal);
+}
+
+@utility z-tooltip {
+  z-index: var(--z-tooltip);
+}

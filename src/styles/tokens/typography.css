@@ -1,0 +1,95 @@
+:root {
+  /* Font families */
+  --font-family-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-family-display: var(--font-orbitron), var(--font-geist-sans), system-ui,
+    sans-serif;
+  --font-family-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Font weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Letter spacing */
+  --tracking-tighter: -0.04em;
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.02em;
+  --tracking-wider: 0.06em;
+  --tracking-widest: 0.12em;
+
+  /* Line heights */
+  --leading-none: 1;
+  --leading-tight: 1.15;
+  --leading-snug: 1.3;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+  --leading-loose: 1.8;
+
+  /* Type scale — font size / line-height */
+  --text-hero-xl-size: 4.5rem;
+  --text-hero-xl-leading: var(--leading-tight);
+  --text-hero-xl-tracking: var(--tracking-tighter);
+  --text-hero-xl-weight: var(--font-weight-bold);
+
+  --text-hero-lg-size: 3.75rem;
+  --text-hero-lg-leading: var(--leading-tight);
+  --text-hero-lg-tracking: var(--tracking-tighter);
+  --text-hero-lg-weight: var(--font-weight-bold);
+
+  --text-h1-size: 3rem;
+  --text-h1-leading: var(--leading-tight);
+  --text-h1-tracking: var(--tracking-tight);
+  --text-h1-weight: var(--font-weight-bold);
+
+  --text-h2-size: 2.25rem;
+  --text-h2-leading: var(--leading-snug);
+  --text-h2-tracking: var(--tracking-tight);
+  --text-h2-weight: var(--font-weight-semibold);
+
+  --text-h3-size: 1.875rem;
+  --text-h3-leading: var(--leading-snug);
+  --text-h3-tracking: var(--tracking-normal);
+  --text-h3-weight: var(--font-weight-semibold);
+
+  --text-h4-size: 1.5rem;
+  --text-h4-leading: var(--leading-snug);
+  --text-h4-tracking: var(--tracking-normal);
+  --text-h4-weight: var(--font-weight-medium);
+
+  --text-body-lg-size: 1.125rem;
+  --text-body-lg-leading: var(--leading-relaxed);
+  --text-body-lg-tracking: var(--tracking-normal);
+  --text-body-lg-weight: var(--font-weight-regular);
+
+  --text-body-size: 1rem;
+  --text-body-leading: var(--leading-normal);
+  --text-body-tracking: var(--tracking-normal);
+  --text-body-weight: var(--font-weight-regular);
+
+  --text-body-sm-size: 0.875rem;
+  --text-body-sm-leading: var(--leading-normal);
+  --text-body-sm-tracking: var(--tracking-normal);
+  --text-body-sm-weight: var(--font-weight-regular);
+
+  --text-caption-size: 0.75rem;
+  --text-caption-leading: var(--leading-normal);
+  --text-caption-tracking: var(--tracking-wide);
+  --text-caption-weight: var(--font-weight-regular);
+
+  --text-button-size: 0.875rem;
+  --text-button-leading: var(--leading-none);
+  --text-button-tracking: var(--tracking-wide);
+  --text-button-weight: var(--font-weight-medium);
+
+  --text-label-size: 0.75rem;
+  --text-label-leading: var(--leading-none);
+  --text-label-tracking: var(--tracking-widest);
+  --text-label-weight: var(--font-weight-medium);
+
+  --text-code-size: 0.875rem;
+  --text-code-leading: var(--leading-normal);
+  --text-code-tracking: var(--tracking-normal);
+  --text-code-weight: var(--font-weight-regular);
+}

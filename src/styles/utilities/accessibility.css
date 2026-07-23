@@ -1,0 +1,51 @@
+/* Focus states */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Text selection */
+::selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-text);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animated-gradient {
+    animation: none;
+  }
+}
+
+/* Interactive utility hover states (token-driven) */
+@media (hover: hover) {
+  .button-primary:hover {
+    box-shadow: var(--shadow-floating);
+    filter: brightness(1.08);
+  }
+
+  .button-secondary:hover {
+    border-color: var(--border-strong);
+    background: rgb(255 255 255 / 6%);
+  }
+
+  .glass-card:hover {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-floating);
+  }
+}
+
+.button-primary:focus-visible,
+.button-secondary:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}

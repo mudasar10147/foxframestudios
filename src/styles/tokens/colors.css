@@ -1,0 +1,38 @@
+:root {
+  /* Background */
+  --background-primary: #08080c;
+  --background-secondary: #0d0d14;
+  --surface: #111118;
+  --elevated-surface: #18181f;
+  --glass-surface: rgb(255 255 255 / 4%);
+
+  /* Text */
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --text-disabled: #52525b;
+
+  /* Accent */
+  --accent-primary: #a855f7;
+  --accent-secondary: #8b5cf6;
+  --glow-purple: rgb(168 85 247 / 50%);
+  --glow-blue: rgb(99 102 241 / 40%);
+
+  /* Border */
+  --border-default: rgb(255 255 255 / 8%);
+  --border-strong: rgb(255 255 255 / 15%);
+  --border-glow: rgb(168 85 247 / 40%);
+  --border-glass: rgb(255 255 255 / 12%);
+
+  /* Status */
+  --status-success: #22c55e;
+  --status-warning: #f59e0b;
+  --status-error: #ef4444;
+  --status-info: #3b82f6;
+
+  /* Effects */
+  --selection-bg: rgb(168 85 247 / 35%);
+  --selection-text: var(--text-primary);
+  --focus-ring: var(--accent-primary);
+  --focus-ring-offset: var(--background-primary);
+}

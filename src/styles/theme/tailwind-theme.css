@@ -1,0 +1,126 @@
+@theme inline {
+  /* Fonts */
+  --font-sans: var(--font-family-sans);
+  --font-display: var(--font-family-display);
+  --font-mono: var(--font-family-mono);
+
+  /* Background colors */
+  --color-background-primary: var(--background-primary);
+  --color-background-secondary: var(--background-secondary);
+  --color-surface: var(--surface);
+  --color-elevated-surface: var(--elevated-surface);
+  --color-glass-surface: var(--glass-surface);
+
+  /* Text colors */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-disabled: var(--text-disabled);
+
+  /* Accent colors */
+  --color-accent-primary: var(--accent-primary);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-glow-purple: var(--glow-purple);
+  --color-glow-blue: var(--glow-blue);
+
+  /* Border colors */
+  --color-border-default: var(--border-default);
+  --color-border-strong: var(--border-strong);
+  --color-border-glow: var(--border-glow);
+  --color-border-glass: var(--border-glass);
+
+  /* Status colors */
+  --color-status-success: var(--status-success);
+  --color-status-warning: var(--status-warning);
+  --color-status-error: var(--status-error);
+  --color-status-info: var(--status-info);
+
+  /* Spacing */
+  --spacing-0-5: var(--space-0-5);
+  --spacing-1: var(--space-1);
+  --spacing-2: var(--space-2);
+  --spacing-3: var(--space-3);
+  --spacing-4: var(--space-4);
+  --spacing-5: var(--space-5);
+  --spacing-6: var(--space-6);
+  --spacing-8: var(--space-8);
+  --spacing-10: var(--space-10);
+  --spacing-12: var(--space-12);
+  --spacing-16: var(--space-16);
+  --spacing-20: var(--space-20);
+  --spacing-24: var(--space-24);
+  --spacing-32: var(--space-32);
+
+  /* Border radius — values synced with tokens/radius.css */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Shadows — values synced with tokens/shadows.css */
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 20%), 0 1px 3px rgb(0 0 0 / 15%);
+  --shadow-medium: 0 4px 12px rgb(0 0 0 / 25%), 0 2px 4px rgb(0 0 0 / 15%);
+  --shadow-large: 0 12px 32px rgb(0 0 0 / 35%), 0 4px 8px rgb(0 0 0 / 20%);
+  --shadow-glow: 0 0 24px var(--glow-purple);
+  --shadow-purple-glow: 0 0 32px var(--glow-purple),
+    0 0 64px rgb(168 85 247 / 15%);
+  --shadow-blue-glow: 0 0 32px var(--glow-blue),
+    0 0 64px rgb(99 102 241 / 12%);
+  --shadow-card: 0 4px 24px rgb(0 0 0 / 30%),
+    inset 0 1px 0 var(--border-glass);
+  --shadow-floating: 0 16px 48px rgb(0 0 0 / 40%),
+    0 0 1px var(--border-glass);
+
+  /* Blur — values synced with tokens/blur.css */
+  --blur-glass: 12px;
+  --blur-nav: 16px;
+  --blur-card: 8px;
+  --blur-background: 24px;
+
+  /* Typography scale */
+  --text-hero-xl: var(--text-hero-xl-size);
+  --text-hero-lg: var(--text-hero-lg-size);
+  --text-h1: var(--text-h1-size);
+  --text-h2: var(--text-h2-size);
+  --text-h3: var(--text-h3-size);
+  --text-h4: var(--text-h4-size);
+  --text-body-lg: var(--text-body-lg-size);
+  --text-body: var(--text-body-size);
+  --text-body-sm: var(--text-body-sm-size);
+  --text-caption: var(--text-caption-size);
+  --text-button: var(--text-button-size);
+  --text-label: var(--text-label-size);
+  --text-code: var(--text-code-size);
+
+  /* Z-index */
+  --z-background: var(--z-background);
+  --z-content: var(--z-content);
+  --z-cards: var(--z-cards);
+  --z-navbar: var(--z-navbar);
+  --z-overlay: var(--z-overlay);
+  --z-modal: var(--z-modal);
+  --z-tooltip: var(--z-tooltip);
+
+  /* Container widths */
+  --width-container: var(--container-width);
+  --width-section: var(--section-width);
+  --width-content: var(--content-width);
+  --width-reading: var(--reading-width);
+
+  /* Animation — values synced with tokens/motion.css */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --duration-very-slow: 800ms;
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-luxury: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-hover: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  /* Breakpoints */
+  --breakpoint-tablet: 48rem;
+  --breakpoint-laptop: 64rem;
+  --breakpoint-desktop: 80rem;
+  --breakpoint-ultra-wide: 96rem;
+}

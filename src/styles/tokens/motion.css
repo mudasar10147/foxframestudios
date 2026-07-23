@@ -1,0 +1,41 @@
+:root {
+  /* Duration */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --duration-very-slow: 800ms;
+
+  /* Easing */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-luxury: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-hover: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  /* Component transitions */
+  --transition-button: color var(--duration-fast) var(--ease-hover),
+    background-color var(--duration-fast) var(--ease-hover),
+    border-color var(--duration-fast) var(--ease-hover),
+    box-shadow var(--duration-normal) var(--ease-luxury),
+    transform var(--duration-normal) var(--ease-luxury),
+    opacity var(--duration-fast) var(--ease-standard);
+
+  --transition-card: box-shadow var(--duration-normal) var(--ease-luxury),
+    transform var(--duration-normal) var(--ease-luxury),
+    border-color var(--duration-normal) var(--ease-standard),
+    background-color var(--duration-normal) var(--ease-standard);
+
+  --transition-navbar: transform var(--duration-slow) var(--ease-luxury),
+    opacity var(--duration-normal) var(--ease-standard),
+    background-color var(--duration-normal) var(--ease-standard),
+    backdrop-filter var(--duration-normal) var(--ease-standard);
+
+  --transition-image: transform var(--duration-slow) var(--ease-luxury),
+    opacity var(--duration-normal) var(--ease-standard),
+    filter var(--duration-slow) var(--ease-luxury);
+
+  --transition-icon: color var(--duration-fast) var(--ease-hover),
+    transform var(--duration-fast) var(--ease-hover),
+    opacity var(--duration-fast) var(--ease-standard);
+
+  --transition-section: opacity var(--duration-slow) var(--ease-luxury),
+    transform var(--duration-slow) var(--ease-luxury);
+}

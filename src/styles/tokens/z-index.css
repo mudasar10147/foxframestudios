@@ -1,0 +1,9 @@
+:root {
+  --z-background: 0;
+  --z-content: 10;
+  --z-cards: 20;
+  --z-navbar: 50;
+  --z-overlay: 90;
+  --z-modal: 100;
+  --z-tooltip: 110;
+}
