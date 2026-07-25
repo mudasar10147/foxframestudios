@@ -33,7 +33,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
         {project.cover ? (
           <Image
             src={project.cover}
-            alt={`${project.title} interface`}
+            alt={`${project.title} project preview`}
             fill
             sizes="(min-width: 1024px) 50vw, 100vw"
             className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
