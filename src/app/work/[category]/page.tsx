@@ -10,6 +10,7 @@ import { SectionBackground } from "@/components/effects/SectionBackground";
 import { ProjectsGrid } from "@/components/sections/projects/ProjectsGrid";
 import { CategoryNav } from "@/components/sections/projects/CategoryNav";
 import { SetDivider } from "@/components/sections/projects/SetDivider";
+import { ProjectCollectionPicker } from "@/components/sections/projects/ProjectCollectionPicker";
 import { getCategoryBySlug, workCategories } from "@/constants/categories";
 import { projects } from "@/constants/content";
 import type { Project } from "@/types";
@@ -75,6 +76,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const categoryProjects = projects.filter(
     (project) => project.category === category.slug,
   );
+  const projectGroups = groupBySet(categoryProjects, category.ungroupedLabel);
 
   return (
     <MainLayout>
@@ -105,14 +107,18 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <CategoryNav active={category.slug} />
 
           {categoryProjects.length > 0 ? (
-            <div className="flex flex-col gap-16">
-              {groupBySet(categoryProjects, category.ungroupedLabel).map((group) => (
-                <div key={group.title} className="flex flex-col gap-8">
+            category.slug === "3d-modelling" ? (
+              <ProjectCollectionPicker groups={projectGroups} />
+            ) : (
+              <div className="flex flex-col gap-16">
+                {projectGroups.map((group) => (
+                  <div key={group.title} className="flex flex-col gap-8">
                   <SetDivider title={group.title} count={group.items.length} />
                   <ProjectsGrid projects={group.items} />
-                </div>
-              ))}
-            </div>
+                  </div>
+                ))}
+              </div>
+            )
           ) : (
             <p className="text-body-lg text-text-muted">
               New work in this category is on the way — check back soon.
