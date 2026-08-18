@@ -6,6 +6,7 @@ import type { Project } from "@/types";
 import { Badge } from "@/components/badges/Badge";
 import { TechBadge } from "@/components/badges/TechBadge";
 import { Card } from "./Card";
+import { AutoPlayVideoPreview } from "./AutoPlayVideoPreview";
 
 type ProjectCardProps = {
   project: Project;
@@ -30,13 +31,15 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
       className={cn("group flex flex-col gap-4", className)}
     >
       <div className="relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-md border border-border-default bg-elevated-surface text-text-muted">
-        {project.cover ? (
+        {project.video ? (
+          <AutoPlayVideoPreview src={project.video} title={project.title} />
+        ) : project.cover ? (
           <Image
             src={project.cover}
             alt={`${project.title} project preview`}
             fill
             sizes="(min-width: 1024px) 50vw, 100vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            className="object-contain"
           />
         ) : (
           <span className="text-body-sm">Project Thumbnail</span>

@@ -185,6 +185,23 @@ export const projects: Project[] = [
     year: 2026,
   },
 
+  // Santa's Workshop UI — an animated Roblox simulator interface preview.
+  {
+    id: "santas-workshop-01",
+    slug: "santas-workshop-interface",
+    title: "Santa's Workshop Interface",
+    role: "UI Designer",
+    summary:
+      "An animated holiday workshop interface with upgrade tiers, worker management, gift-conveyor progression, and clear in-game purchase actions.",
+    video: "/work/santas-workshop-ui/santas-workshop-ui.mp4",
+    stack: ["Roblox UI", "Simulator UI", "Animated Preview"],
+    category: "ui-designs",
+    subcategory: "Workshop UI",
+    set: "Santa's Workshop UI",
+    featured: false,
+    year: 2026,
+  },
+
   // Slime Lab UI — a five-screen Roblox simulator interface set.
   {
     id: "slime-lab-01",

@@ -87,6 +87,8 @@ export type Project = {
   summary: string;
   description?: string;
   cover?: string;
+  /** Optional video preview that plays only while its project card is visible. */
+  video?: string;
   stack: string[];
   category: CategorySlug;
   /** Optional finer-grained label, e.g. "HUD" within UI Designs. */
