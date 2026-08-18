@@ -185,6 +185,83 @@ export const projects: Project[] = [
     year: 2026,
   },
 
+  // Slime Lab UI — a five-screen Roblox simulator interface set.
+  {
+    id: "slime-lab-01",
+    slug: "slime-lab-rebirth",
+    title: "Mutant Energy Rebirth",
+    role: "UI Designer",
+    summary:
+      "A high-impact rebirth screen that clearly communicates requirements, reset consequences, permanent upgrades, and the next mutant energy milestone.",
+    stack: ["Roblox UI", "Progression", "Simulator Style"],
+    category: "ui-designs",
+    subcategory: "Rebirth",
+    set: "Slime Lab UI",
+    cover: "/work/slime-lab-ui/rebirth.png",
+    featured: false,
+    year: 2026,
+  },
+  {
+    id: "slime-lab-02",
+    slug: "slime-lab-settings",
+    title: "Slime Lab Settings",
+    role: "UI Designer",
+    summary:
+      "An easy-to-scan settings screen that pairs audio sliders and gameplay toggles with quick help, support, and code-access actions.",
+    stack: ["Roblox UI", "Settings", "Simulator Style"],
+    category: "ui-designs",
+    subcategory: "Settings",
+    set: "Slime Lab UI",
+    cover: "/work/slime-lab-ui/settings.png",
+    featured: false,
+    year: 2026,
+  },
+  {
+    id: "slime-lab-03",
+    slug: "slime-lab-legends",
+    title: "Lab Legends Leaderboard",
+    role: "UI Designer",
+    summary:
+      "A three-column leaderboard experience for wealth, event wins, and rebirth mastery, completed with a personal stats summary.",
+    stack: ["Roblox UI", "Leaderboard", "Simulator Style"],
+    category: "ui-designs",
+    subcategory: "Leaderboard",
+    set: "Slime Lab UI",
+    cover: "/work/slime-lab-ui/lab-legends.png",
+    featured: false,
+    year: 2026,
+  },
+  {
+    id: "slime-lab-04",
+    slug: "slime-lab-redeem-codes",
+    title: "Slime Lab Redeem Codes",
+    role: "UI Designer",
+    summary:
+      "A playful code-redemption screen with a clear reward chest illustration, code field, redeem action, and community callout.",
+    stack: ["Roblox UI", "Rewards", "Simulator Style"],
+    category: "ui-designs",
+    subcategory: "Codes",
+    set: "Slime Lab UI",
+    cover: "/work/slime-lab-ui/redeem-codes.png",
+    featured: false,
+    year: 2026,
+  },
+  {
+    id: "slime-lab-05",
+    slug: "slime-lab-rewards",
+    title: "Slime Lab Rewards",
+    role: "UI Designer",
+    summary:
+      "A reward hub that combines login streaks, playtime gifts, and daily quests into one clear progression-focused dashboard.",
+    stack: ["Roblox UI", "Daily Rewards", "Simulator Style"],
+    category: "ui-designs",
+    subcategory: "Rewards",
+    set: "Slime Lab UI",
+    cover: "/work/slime-lab-ui/rewards.png",
+    featured: false,
+    year: 2026,
+  },
+
   // Simulator Tycoon UI — a seven-screen Roblox simulator/tycoon interface set.
   {
     id: "sim-01",
