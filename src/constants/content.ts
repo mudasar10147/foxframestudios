@@ -1869,7 +1869,7 @@ export const orderContent = {
 } as const;
 
 export const pricing: PriceItem[] = [
-  { label: "UI Design", value: "$15 – $20", note: "per UI" },
+  { label: "UI Design", value: "$25 – $30", note: "per UI" },
   { label: "Import", value: "$3", note: "per import" },
   { label: "Scripting", value: "$15", note: "per script" },
 ];
