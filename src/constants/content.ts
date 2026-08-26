@@ -185,7 +185,7 @@ export const projects: Project[] = [
     year: 2026,
   },
 
-  // Santa's Workshop UI — an animated Roblox simulator interface preview.
+  // Animated UI's — motion previews that play only while visible in the portfolio.
   {
     id: "santas-workshop-01",
     slug: "santas-workshop-interface",
@@ -197,7 +197,54 @@ export const projects: Project[] = [
     stack: ["Roblox UI", "Simulator UI", "Animated Preview"],
     category: "ui-designs",
     subcategory: "Workshop UI",
-    set: "Santa's Workshop UI",
+    set: "Animated UI's",
+    featured: false,
+    year: 2026,
+  },
+  {
+    id: "void-market-01",
+    slug: "void-market-command-deck",
+    title: "Void Market Command Deck",
+    role: "UI Designer",
+    summary:
+      "An animated sci-fi command deck featuring operation-zone selection, squad status, market resources, and a tactical deployment flow.",
+    video: "/work/animated-ui/void-market-command-deck.mp4",
+    stack: ["Roblox UI", "Sci-Fi UI", "Animated Preview"],
+    category: "ui-designs",
+    subcategory: "Command Deck",
+    set: "Animated UI's",
+    featured: false,
+    year: 2026,
+  },
+  {
+    id: "cinematic-adventure-menu-01",
+    slug: "cinematic-adventure-menu",
+    title: "Cinematic Adventure Menu",
+    role: "UI Designer",
+    summary:
+      "An animated monochrome main menu that combines cinematic particles, restrained typography, and focused navigation for a mysterious story-driven experience.",
+    video: "/work/animated-ui/cinematic-adventure-menu.mp4",
+    stack: ["Roblox UI", "Main Menu", "Animated Preview"],
+    category: "ui-designs",
+    subcategory: "Main Menu",
+    set: "Animated UI's",
+    featured: false,
+    year: 2026,
+  },
+
+  // Daily Rewards UI — a neon seven-day login reward interface.
+  {
+    id: "daily-rewards-ui-01",
+    slug: "neon-daily-rewards",
+    title: "Neon Daily Rewards",
+    role: "UI Designer",
+    summary:
+      "A futuristic seven-day login rewards interface with neon purple framing, clearly separated reward slots, a featured final-day prize, and a focused claim action.",
+    cover: "/work/daily-rewards-ui/neon-daily-rewards.png",
+    stack: ["Roblox UI", "Daily Rewards", "Neon Style"],
+    category: "ui-designs",
+    subcategory: "Daily Rewards",
+    set: "Daily Rewards UI",
     featured: false,
     year: 2026,
   },
