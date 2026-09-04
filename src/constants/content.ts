@@ -432,6 +432,21 @@ export const projects: Project[] = [
     featured: false,
     year: 2026,
   },
+  {
+    id: "sim-08",
+    slug: "simulator-code-redemption-like-goals",
+    title: "Code Redemption & Like Goals",
+    role: "UI Designer",
+    summary:
+      "A vibrant reward-code screen combining a focused redemption flow with community like milestones, visible unlock targets, and a clear progress bar that encourages continued engagement.",
+    stack: ["Roblox UI", "Reward Codes", "Simulator Style"],
+    category: "ui-designs",
+    subcategory: "Codes & Like Goals",
+    set: "Simulator Tycoon UI",
+    cover: "/work/simulator-tycoon-ui/code-redemption-like-goals.png",
+    featured: false,
+    year: 2026,
+  },
 
   // Neon Action UI — a two-screen Roblox rewards and inventory interface set.
   {
