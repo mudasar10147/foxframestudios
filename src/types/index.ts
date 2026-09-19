@@ -93,7 +93,7 @@ export type Project = {
   category: CategorySlug;
   /** Optional finer-grained label, e.g. "HUD" within UI Designs. */
   subcategory?: string;
-  /** Groups screens belonging to one UI kit, e.g. "Purple Arcade UI". */
+  /** Groups screens belonging to one UI kit. */
   set?: string;
   metric?: { label: string; value: string };
   links?: ProjectLinks;
