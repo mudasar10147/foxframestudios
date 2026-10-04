@@ -282,13 +282,59 @@ function HudLayer({
  * composition that takes a little over half the container at `lg` and the full
  * width below it. Leaving it out ships the largest source to a phone.
  */
+/**
+ * How wide a render is drawn, measured off the layout: the stage is 80% of a
+ * composition that takes 6/11 of the container at `lg`, and the render is scaled
+ * up to 1.5× inside it. That comes to about 600px once the container hits its
+ * 80rem cap, about 46vw just above `lg`, and most of the width below it. A plain
+ * `40vw` kept growing past the cap and sent wide screens a bigger file than they
+ * draw.
+ *
+ * Shared by the slide art and the preloader below, so both pick the SAME file and
+ * the preloaded one is what the slide later finds in the cache.
+ */
+const SLIDE_ART_SIZES =
+  "(min-width: 1280px) 600px, (min-width: 1024px) 46vw, 90vw";
+
+/** The renders' intrinsic size. They're all square. */
+const SLIDE_ART_PX = 1000;
+
+/**
+ * Fetches every render after the first, quietly, so each one is already in the
+ * cache when its slide comes round. Without this, a slide's image was only
+ * requested as the slide mounted, and the stage sat empty for a moment while it
+ * downloaded and decoded mid-animation.
+ *
+ * Low fetch priority, so they never compete with the first slide (the hero's
+ * LCP). Rendered off screen rather than with `display: none`, which some browsers
+ * treat as a reason not to fetch.
+ */
+function SlideArtPreloader() {
+  return (
+    <div aria-hidden className="sr-only">
+      {SLIDES.slice(1).map((slide) => (
+        <Image
+          key={slide.id}
+          src={slide.src}
+          alt=""
+          width={SLIDE_ART_PX}
+          height={SLIDE_ART_PX}
+          sizes={SLIDE_ART_SIZES}
+          loading="eager"
+          fetchPriority="low"
+        />
+      ))}
+    </div>
+  );
+}
+
 function SlideArt({ slide }: { slide: Slide }) {
   return (
     <Image
       src={slide.src}
       alt={slide.alt}
       fill
-      sizes="(min-width: 1024px) 40vw, 80vw"
+      sizes={SLIDE_ART_SIZES}
       // Only the slide the page opens on: it is the hero's LCP candidate. Marking
       // the rest would have the browser fetch four renders to show one (§9.1).
       priority={slide.id === SLIDES[0]?.id}
@@ -352,6 +398,8 @@ export function HeroCarousel() {
           <CarouselDots count={SLIDE_COUNT} activeIndex={index} />
         </Rise>
       </div>
+
+      <SlideArtPreloader />
 
       {/*
        * Exactly one layer is mounted at a time: the outgoing one plays its exit, and

@@ -1,4 +1,3 @@
-import type { Ref } from "react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -44,41 +43,10 @@ const VIEW_BOX = [
 const PLANE =
   "M17,1.042 L11.436,14.954 L7.958,11.477 L8.653,13.563 L7.03,14.958 L7.03,11.563 L14.984,3.375 L6.047,9.969 L1,8.694 L17,1.042 Z";
 
-/**
- * The nose: the path's first point, which is where the ink comes to a tip.
- *
- * Read off the path rather than eyeballed, because the direction the plane appears
- * to point is measured from the same centroid the box is cut around — not from the
- * middle of the bounding box, which sits somewhere else entirely.
- */
-const NOSE_X = 17;
-const NOSE_Y = 1.042;
-
-/**
- * Which way the plane points when nothing has rotated it, in radians clockwise from
- * the +x axis — so this one is negative, meaning up and to the right.
- *
- * Exported because anything that FLIES this glyph has to rotate it by the
- * difference between where it is going and where the ink already points, and
- * because a plane docking back into a resting copy of itself has to arrive on this
- * bearing exactly or the hand-back snaps.
- */
-export const SEND_GLYPH_BEARING = Math.atan2(
-  NOSE_Y - CENTRE_Y,
-  NOSE_X - CENTRE_X,
-);
-
 export interface SendGlyphProps {
   /** Rendered size in pixels. */
   size?: number;
   className?: string;
-  /**
-   * The `<svg>` itself.
-   *
-   * A flight has to measure the glyph it takes off from, and fade the copy it
-   * flies, so both need the element rather than a wrapper around it.
-   */
-  ref?: Ref<SVGSVGElement>;
 }
 
 /**
@@ -88,10 +56,9 @@ export interface SendGlyphProps {
  * accessibility tree and whatever it sits inside does the labelling — which is why
  * the source's `<title>` is dropped rather than carried through.
  */
-export function SendGlyph({ size = 24, className, ref }: SendGlyphProps) {
+export function SendGlyph({ size = 24, className }: SendGlyphProps) {
   return (
     <svg
-      ref={ref}
       aria-hidden
       width={size}
       height={size}

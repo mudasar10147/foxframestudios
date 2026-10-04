@@ -1,20 +1,12 @@
 "use client";
 
-import {
-  useId,
-  useRef,
-  useState,
-  type ChangeEvent,
-  type FormEvent,
-} from "react";
+import { useId, useState, type ChangeEvent, type FormEvent } from "react";
 import { FormField } from "@/components/shared/FormField";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
-import { SendFlight, type SendOutcome } from "@/components/ui/SendFlight";
 import { SendGlyph } from "@/components/ui/SendGlyph";
 import { Textarea } from "@/components/ui/Textarea";
-import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { cn } from "@/lib/utils";
 import {
   contactResponseSchema,
@@ -93,16 +85,8 @@ const SIMULATE_SEND = true;
 const SKIP_VALIDATION = true;
 
 /**
- * How long the simulated send runs for — it stands in for the request's own
- * duration, and nothing else reads it: the plane is timed by its own flight and
- * waits on the RESULT, not on this.
- *
- * One second is one whole revolution of the dial's ring, which is as long as the
- * send took to read as finished before there was a plane. Two thresholds worth
- * knowing now that there is one: under about 3.1s the reply beats the plane to the
- * middle of the screen, so it lands, pauses, and leaves — and the fields clear
- * while it is still out. Above that, the plane arrives first and is seen to hover
- * and wait, which is what a slow real request will look like.
+ * How long the simulated send runs for. It stands in for the request's own
+ * duration, so the button shows "Sending…" for about as long as a real send takes.
  */
 const SPIN_MS = 1000;
 
@@ -162,25 +146,14 @@ export interface ContactFormProps {
  * checks the request with, so the two sides can never disagree about what counts
  * as a valid message (§9.5). The client check is courtesy; the server's is the
  * boundary that matters.
- *
- * Sending launches the paper plane from the button (`SendFlight`), and the outcome
- * is only revealed once the plane has gone.
  */
 export function ContactForm({ className }: ContactFormProps) {
   const formId = useId();
   const [values, setValues] = useState<FormState>(EMPTY_VALUES);
   const [status, setStatus] = useState<SubmitStatus>({ state: "idle" });
 
-  // The plane's own state, which is NOT the request's: it is still flying for a
-  // while after the request has landed, and the reader is not told the outcome
-  // until it has gone. Held here because the button and the readout both have to
-  // know, and they are this component's to arrange.
-  const [flying, setFlying] = useState(false);
-  const sendGlyph = useRef<SVGSVGElement>(null);
-  const prefersReduced = usePrefersReducedMotion();
-
-  /** Nothing else may be started, and nothing may be revealed, while this is true. */
-  const busy = flying || status.state === "sending";
+  /** Nothing else may be started while this is true. */
+  const busy = status.state === "sending";
 
   // Derived during render, never stored: errors held in state would go stale the
   // moment a keystroke changed the values they were computed from (§12.1). An
@@ -211,23 +184,11 @@ export function ContactForm({ className }: ContactFormProps) {
         )
       : [];
 
-  /**
-   * What the screen is allowed to say yet: still sending for as long as the plane
-   * is out, and back to idle as soon as an incomplete form is filled in.
-   */
-  const visibleStatus: SubmitStatus = busy
-    ? { state: "sending" }
-    : status.state === "incomplete" && parsed.success
+  /** Back to idle as soon as an incomplete form is filled in. */
+  const visibleStatus: SubmitStatus =
+    status.state === "incomplete" && parsed.success
       ? { state: "idle" }
       : status;
-
-  /** What the flight is waiting to hear. Null for as long as the send is out. */
-  const flightOutcome: SendOutcome | null =
-    status.state === "sent"
-      ? "sent"
-      : status.state === "failed"
-        ? "failed"
-        : null;
 
   /** The tail of every successful send: confirm it, then clear the fields. */
   const markSent = () => {
@@ -254,11 +215,6 @@ export function ContactForm({ className }: ContactFormProps) {
     }
 
     setStatus({ state: "sending" });
-
-    // Launched here rather than from an effect watching the status, so the plane
-    // leaves on the same beat the reader pressed the button. Skipped outright when
-    // reduced motion is asked for (§15).
-    if (!prefersReduced) setFlying(true);
 
     // Reaching here without a valid form means `SKIP_VALIDATION` is on, and there
     // is no payload to post.
@@ -392,15 +348,7 @@ export function ContactForm({ className }: ContactFormProps) {
         className="contact-send mt-6 h-16 w-full justify-center gap-3 font-bold tracking-widest uppercase"
       >
         {busy ? "Sending…" : "Send Message"}
-        {/*
-         * The plane the flight takes off from. Hidden (not unmounted) while it's away,
-         * so the flight can still measure where home is.
-         */}
-        <SendGlyph
-          ref={sendGlyph}
-          size={20}
-          className={cn("contact-send-glyph", flying && "invisible")}
-        />
+        <SendGlyph size={20} className="contact-send-glyph" />
       </Button>
 
       {/*
@@ -421,19 +369,6 @@ export function ContactForm({ className }: ContactFormProps) {
       >
         {outcome ?? REPLY_NOTE}
       </p>
-
-      {/*
-       * Mounted only while it is flying, so every frame, listener and piece of the
-       * last flight goes with it. It draws itself over the whole viewport from a
-       * portal, so it takes no part in this layout.
-       */}
-      {flying ? (
-        <SendFlight
-          origin={sendGlyph}
-          outcome={flightOutcome}
-          onFinish={() => setFlying(false)}
-        />
-      ) : null}
     </form>
   );
 }
