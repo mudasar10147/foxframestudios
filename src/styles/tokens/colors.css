@@ -1,38 +1,79 @@
+/**
+ * Raw semantic color tokens (Layer 1 of the two-layer token system — AGENTS.md §8.1).
+ * Components MUST NOT read these directly; they consume the Tailwind utilities that
+ * `theme/tailwind-theme.css` generates from them.
+ */
 :root {
-  /* Background */
-  --background-primary: #08080c;
-  --background-secondary: #0d0d14;
-  --surface: #111118;
-  --elevated-surface: #18181f;
-  --glass-surface: rgb(255 255 255 / 4%);
+  /* Backgrounds */
+  --background-primary: #080b10;
+  --background-secondary: #0b1016;
+
+  /* Raised surfaces: panels, bars, cards */
+  --surface: #131a23;
+  --surface-elevated: #1b242f;
+  --surface-translucent: rgb(255 255 255 / 4%);
 
   /* Text */
-  --text-primary: #ffffff;
-  --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
-  --text-disabled: #52525b;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-disabled: #475569;
 
-  /* Accent */
-  --accent-primary: #a855f7;
-  --accent-secondary: #8b5cf6;
-  --glow-purple: rgb(168 85 247 / 50%);
-  --glow-blue: rgb(99 102 241 / 40%);
+  /* Accent — cyan/teal */
+  --accent-primary: #67e8f9;
+  --accent-strong: #22d3ee;
+  --accent-deep: #0e7490;
+  --accent-soft: rgb(103 232 249 / 10%);
+  --accent-glow: rgb(103 232 249 / 30%);
 
-  /* Border */
+  /* Tones for HUD tiles that need to read as DIFFERENT from each other. Taken from
+     colours the theme already has, so no new hues come in: the cyan accent, a warm
+     coral, muted slate, and the primary text white. */
+  --tone-cool: var(--accent-primary);
+  --tone-warm: #ef7266;
+  --tone-dim: var(--text-muted);
+  --tone-neutral: var(--text-primary);
+  /* Two more steps along the accent, for series that need more than one cyan. */
+  --tone-strong: var(--accent-strong);
+  --tone-deep: var(--accent-deep);
+
+  /* Borders */
   --border-default: rgb(255 255 255 / 8%);
-  --border-strong: rgb(255 255 255 / 15%);
-  --border-glow: rgb(168 85 247 / 40%);
-  --border-glass: rgb(255 255 255 / 12%);
+  --border-strong: rgb(255 255 255 / 14%);
+  --border-accent: rgb(103 232 249 / 38%);
+
+  /* HUD panel edges, brightest first. Kept separate from --border-strong so
+     tuning them cannot disturb the header, which shares that token. */
+  --border-bright: rgb(140 238 252 / 34%); /* stage corner bracket */
+  --border-stage: rgb(255 255 255 / 13%); /* stage outline */
+  --border-glass: rgb(140 238 252 / 14%); /* the four floating cards */
+  /* Edge of a full-section HUD panel. Brighter than the cards above because the
+     same alpha reads as almost nothing once it is stretched across a whole row. */
+  --border-section: rgb(140 238 252 / 40%);
+
+  /* Edge of a form control: the panel's own colour, so a field reads as a recess
+     cut into the surface rather than as an outlined box sitting on top of it. The
+     edge is kept rather than removed because the invalid state lights this same
+     line — there has to be something there to light. */
+  --border-control: var(--surface);
+
+  /* Fill for the HUD's cogs and other small glyphs. Translucent, so the chrome
+     sits IN a surface rather than on top of it. Its own token rather than a border
+     one, so the glyphs can be tuned without moving every panel edge with them. */
+  --glyph-chrome: rgb(140 238 252 / 45%);
+
+  /* Panel chrome — specular edge, bloom, and gloss for the gaming-style shell */
+  --rim-light: rgb(255 255 255 / 55%);
+  --glow-edge: rgb(103 232 249 / 22%);
+  --gloss: rgb(255 255 255 / 7%);
+
+  /* Light spilling off the section panel's right and bottom edges. White rather
+     than the cyan accent, so it reads as a lit edge and not as another glow. */
+  --section-glow: rgb(255 255 255 / 10%);
 
   /* Status */
-  --status-success: #22c55e;
-  --status-warning: #f59e0b;
-  --status-error: #ef4444;
-  --status-info: #3b82f6;
-
-  /* Effects */
-  --selection-bg: rgb(168 85 247 / 35%);
-  --selection-text: var(--text-primary);
-  --focus-ring: var(--accent-primary);
-  --focus-ring-offset: var(--background-primary);
+  --status-success: #4ade80;
+  --status-warning: #fbbf24;
+  --status-error: #f87171;
+  --status-info: #60a5fa;
 }

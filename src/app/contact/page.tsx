@@ -1,18 +1,24 @@
 import type { Metadata } from "next";
-import { MainLayout } from "@/components/layout/MainLayout";
-import { ContactSection } from "@/components/sections";
+import { ContactForm } from "@/components/domain/ContactForm";
+import { Container } from "@/components/layout/Container";
+import { PageHeader } from "@/components/shared/PageHeader";
 
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Get in touch about Roblox UI design, scripting, map building, or 3D modelling work.",
-  alternates: { canonical: "/contact" },
+    "Tell us about the project and we will come back within two working days.",
 };
 
 export default function ContactPage() {
   return (
-    <MainLayout>
-      <ContactSection />
-    </MainLayout>
+    <Container className="py-20">
+      <PageHeader
+        eyebrow="Start a project"
+        title="Contact"
+        description="Tell us about the project and we will come back within two working days."
+      />
+
+      <ContactForm className="mt-12" />
+    </Container>
   );
 }

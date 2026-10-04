@@ -1,18 +1,24 @@
 import type { Metadata } from "next";
-import { MainLayout } from "@/components/layout/MainLayout";
-import { ProjectsSection } from "@/components/sections";
+import { Container } from "@/components/layout/Container";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { WorkInProgress } from "@/components/shared/WorkInProgress";
 
 export const metadata: Metadata = {
   title: "Work",
   description:
-    "Browse the portfolio by discipline — UI design, scripting, map building, and 3D modelling.",
-  alternates: { canonical: "/work" },
+    "Selected interface work — HUDs, menus, and UI kits shipped with studio partners.",
 };
 
 export default function WorkPage() {
   return (
-    <MainLayout>
-      <ProjectsSection />
-    </MainLayout>
+    <Container className="py-20">
+      <PageHeader
+        eyebrow="Portfolio"
+        title="Work"
+        description="Selected interface work — HUDs, menus, and UI kits shipped with studio partners."
+      />
+
+      <WorkInProgress />
+    </Container>
   );
 }

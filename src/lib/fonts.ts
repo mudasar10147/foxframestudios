@@ -1,19 +1,9 @@
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
-import { Orbitron } from "next/font/google";
+import { Inter } from "next/font/google";
 
-export const geistSans = GeistSans;
-
-export const geistMono = GeistMono;
-
-export const orbitron = Orbitron({
+export const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-orbitron",
+  variable: "--font-inter",
   display: "swap",
 });
 
-export const fontVariables = [
-  geistSans.variable,
-  geistMono.variable,
-  orbitron.variable,
-].join(" ");
+export const fontVariables = inter.variable;

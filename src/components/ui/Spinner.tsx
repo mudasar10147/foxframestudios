@@ -1,29 +1,38 @@
-import { LoaderCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type SpinnerSize = "sm" | "md" | "lg";
+const sizeStyles = {
+  sm: "size-3.5 border-[1.5px]",
+  md: "size-4 border-2",
+  lg: "size-5 border-2",
+} as const;
 
-const sizeMap: Record<SpinnerSize, number> = {
-  sm: 16,
-  md: 20,
-  lg: 28,
-};
+export type SpinnerSize = keyof typeof sizeStyles;
 
-type SpinnerProps = {
+export interface SpinnerProps {
   size?: SpinnerSize;
-  label?: string;
   className?: string;
-};
+  /** Announced to screen readers. Pass `null` when a parent already labels the wait. */
+  label?: string | null;
+}
 
-export function Spinner({ size = "md", label = "Loading", className }: SpinnerProps) {
+export function Spinner({
+  size = "md",
+  className,
+  label = "Loading",
+}: SpinnerProps) {
   return (
-    <span role="status" aria-live="polite" className="inline-flex">
-      <LoaderCircle
-        aria-hidden="true"
-        size={sizeMap[size]}
-        className={cn("animate-spin text-current", className)}
+    <span
+      role={label ? "status" : undefined}
+      aria-hidden={label ? undefined : true}
+      className={cn("inline-flex items-center justify-center", className)}
+    >
+      <span
+        className={cn(
+          "animate-spin rounded-full border-current border-r-transparent",
+          sizeStyles[size],
+        )}
       />
-      <span className="sr-only">{label}</span>
+      {label ? <span className="sr-only">{label}</span> : null}
     </span>
   );
 }

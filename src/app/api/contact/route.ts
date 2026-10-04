@@ -8,7 +8,10 @@ export async function POST(request: Request) {
   try {
     payload = await request.json();
   } catch {
-    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body." },
+      { status: 400 },
+    );
   }
 
   const parsed = contactSchema.safeParse(payload);
@@ -23,14 +26,16 @@ export async function POST(request: Request) {
   const to = process.env.CONTACT_EMAIL;
 
   if (!to) {
-    console.error("CONTACT_EMAIL is not defined — cannot deliver contact form.");
+    console.error(
+      "CONTACT_EMAIL is not defined — cannot deliver contact form.",
+    );
     return NextResponse.json(
       { error: "Contact form is not configured. Please try Discord instead." },
       { status: 500 },
     );
   }
 
-  const { name, email, message } = parsed.data;
+  const { name, email, projectType, message } = parsed.data;
 
   try {
     const resend = getResendClient();
@@ -41,7 +46,7 @@ export async function POST(request: Request) {
       to,
       replyTo: email,
       subject: `New enquiry from ${name}`,
-      text: `Name: ${name}\nEmail: ${email}\n\n${message}`,
+      text: `Name: ${name}\nEmail: ${email}\nProject type: ${projectType ?? "Not specified"}\n\n${message}`,
     });
 
     if (error) {

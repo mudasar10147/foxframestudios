@@ -1,26 +1,23 @@
-import { MainLayout } from "@/components/layout/MainLayout";
-import {
-  AboutSection,
-  ContactSection,
-  HeroSection,
-  OrderSection,
-  ProcessSection,
-  ProjectsSection,
-  ServicesSection,
-  SkillsSection,
-} from "@/components/sections";
+import type { Metadata } from "next";
+import { ContactSection } from "@/app/_components/ContactSection";
+import { HeroSection } from "@/app/_components/HeroSection";
+import { PortfolioSection } from "@/app/_components/PortfolioSection";
+import { ServicesSection } from "@/app/_components/ServicesSection";
+import { WorkflowSection } from "@/app/_components/WorkflowSection";
 
-export default function HomePage() {
+export const metadata: Metadata = {
+  description:
+    "Crafting immersive interfaces, systems, and assets for next-gen worlds.",
+};
+
+export default function Home() {
   return (
-    <MainLayout>
+    <>
       <HeroSection />
-      <AboutSection />
-      <SkillsSection />
-      <ProjectsSection />
       <ServicesSection />
-      <ProcessSection />
-      <OrderSection />
+      <PortfolioSection />
+      <WorkflowSection />
       <ContactSection />
-    </MainLayout>
+    </>
   );
 }

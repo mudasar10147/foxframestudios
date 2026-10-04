@@ -1,3 +1,3075 @@
-@import "./layout.css";
-@import "./typography.css";
-@import "./effects.css";
+/**
+ * The signature silhouette: a trapezoid whose side edges run from the top corners down
+ * and inward, giving a diagonal on the left and its mirror on the right. The top edge
+ * stays full width; the bottom is narrower by `--chamfer` on each side.
+ *
+ * `clip-path` clips borders too, so a bordered panel is built as an outer element
+ * (border colour) wrapping an inner element (surface), both clipped.
+ */
+.chamfer-sides {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    calc(100% - var(--chamfer)) 100%,
+    var(--chamfer) 100%
+  );
+}
+
+/**
+ * Horizontal breathing room for content inside a `.chamfer-sides` panel so nothing
+ * collides with the leaning edges. Derived from the same token as the cut: the edges
+ * never intrude further than `--chamfer`, which is reached at the bottom of the panel.
+ */
+.chamfer-safe-x {
+  padding-inline: calc(var(--chamfer) + 0.5rem);
+}
+
+/* Faint dotted texture used behind dark panels. */
+.texture-dots {
+  background-image: radial-gradient(var(--border-default) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/**
+ * Gaming-style panel chrome. Three composable layers, all tokenized:
+ *
+ *   .panel-bloom   outer depth shadow + faint accent halo. Applied to a wrapper OUTSIDE
+ *                  the clipped element so `drop-shadow` traces the trapezoid silhouette
+ *                  (a `box-shadow` would be clipped away by clip-path).
+ *   .panel-surface layered fill: a top-down gloss over the base gradient.
+ *   .panel-rim     specular highlight along the top edge, plus an accent glow blooming
+ *                  from the top centre. Both are clipped to the panel.
+ */
+.panel-bloom {
+  filter: drop-shadow(0 10px 26px rgb(0 0 0 / 55%))
+    drop-shadow(0 0 16px var(--glow-edge));
+}
+
+.panel-surface {
+  background:
+    linear-gradient(180deg, var(--gloss), transparent 55%),
+    linear-gradient(
+      100deg,
+      var(--surface-elevated),
+      var(--surface) 45%,
+      var(--background-secondary)
+    );
+}
+
+.panel-rim::before,
+.panel-rim::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+/* Top edge specular line, brightest across the middle. */
+.panel-rim::before {
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--rim-light) 30%,
+    var(--rim-light) 70%,
+    transparent
+  );
+}
+
+/* Accent bloom spilling down from the top edge. */
+.panel-rim::after {
+  left: 50%;
+  top: -70%;
+  height: 140%;
+  width: 60%;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    ellipse at center,
+    var(--glow-edge),
+    transparent 70%
+  );
+}
+
+/* The shared sliding underline beneath the active/hovered nav item. */
+.nav-underline {
+  height: 2px;
+  border-radius: 9999px;
+  background: var(--accent-primary);
+  box-shadow: 0 0 8px var(--accent-primary);
+}
+
+/**
+ * Zero-height probe whose rendered width resolves `--chamfer` to pixels, so the beam
+ * geometry stays locked to the same token that draws the clip-path — whatever unit
+ * that token is expressed in. Reading the custom property directly would hand back
+ * the unresolved value ("2.5rem").
+ */
+.chamfer-probe {
+  position: absolute;
+  height: 0;
+  width: var(--chamfer);
+}
+
+/**
+ * A light streak that sweeps along the panel's lower outline.
+ *
+ * Each streak is one dash in a pattern whose period is LONGER than the path, so exactly
+ * one dash is ever on the path and it fully exits before the next enters. Every layer
+ * starts its dash at its own length, which lands all their heads on the same point and
+ * leaves their tails trailing at different distances — see `ChamferBeam`.
+ */
+.beam-trace {
+  animation-name: beam-travel;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes beam-travel {
+  from {
+    stroke-dashoffset: var(--beam-start);
+  }
+  to {
+    stroke-dashoffset: calc(var(--beam-start) - var(--beam-period));
+  }
+}
+
+/* Applied once to the group, not per layer, so the blur is composited a single time. */
+.beam-glow {
+  filter: drop-shadow(0 0 6px var(--accent-primary));
+}
+
+/* Decorative only — no motion means no beam at all, rather than a frozen dash. */
+@media (prefers-reduced-motion: reduce) {
+  .beam-host {
+    display: none;
+  }
+}
+
+/**
+ * A short, small-travel entrance. Deliberately understated — 8px of movement, not a
+ * slide across the screen — so content settles into place rather than performing.
+ * `both` fill means reduced-motion users land straight on the final state.
+ */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise-in {
+  animation: rise-in 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/*
+ * Holds an element invisible until it is scrolled to. The `scripting: none` branch is
+ * the safety net: with JavaScript off nothing would ever flip this class, and content
+ * that never appears is a far worse outcome than a missing animation.
+ */
+.rise-pending {
+  opacity: 0;
+}
+
+@media (scripting: none) {
+  .rise-pending {
+    opacity: 1;
+  }
+}
+
+/**
+ * Faint engineering grid, masked so it dissolves instead of ending on a hard line.
+ *
+ * Cell size and fade are custom properties rather than fixed values so the same
+ * grid can be re-lit per surface — the defaults below are the hero's, and a
+ * companion class overrides them without restating the grid itself.
+ */
+.texture-grid {
+  --grid-cell: 72px;
+  --grid-fade: radial-gradient(
+    ellipse 75% 65% at 55% 45%,
+    #000 35%,
+    transparent 100%
+  );
+
+  background-image:
+    linear-gradient(to right, var(--border-default) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border-default) 1px, transparent 1px);
+  background-size: var(--grid-cell) var(--grid-cell);
+  mask-image: var(--grid-fade);
+}
+
+/**
+ * A row of connected nodes: the project registry's entries, and the workflow's
+ * stages.
+ *
+ * Columns are equal and generated from the content (`grid-auto-flow: column` with
+ * `1fr` auto-columns), so a sixth item re-divides the row rather than needing a new
+ * column count anywhere. Below `lg` the items stack — six labels side by side stop
+ * being readable well before that width.
+ *
+ * Items are left to stretch, so a row whose labels wrap to different line counts
+ * still comes out level. The registry's entries are a fixed height and so are
+ * unaffected by it either way.
+ *
+ * `--node-gap` is the run between two nodes, and it lives on the scope rather than
+ * on the row itself: the connectors are sized against it, and so is the portfolio's
+ * bus, which is a SIBLING of its row. A value declared on the row would leave that
+ * bus reading a second copy of it (§14).
+ */
+.node-scope {
+  --node-gap: 1rem;
+}
+
+@media (min-width: 64rem) {
+  .node-scope {
+    --node-gap: 2.5rem;
+  }
+}
+
+.node-row {
+  display: grid;
+  gap: var(--node-gap);
+}
+
+@media (min-width: 64rem) {
+  .node-row {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+  }
+}
+
+/**
+ * A charge travelling a horizontal run.
+ *
+ * The band is a pseudo-element so the whole thing is one span in the markup; its
+ * timing comes from custom properties set inline, which is the only way a
+ * pseudo-element can be told when to start.
+ *
+ * Travel is expressed in percentages OF THE BAND, not of the run: -100% puts its
+ * trailing edge on the run's start, and 100/45 x 100% carries its leading edge past
+ * the end. The parent clips, so the band is invisible before and after without
+ * needing to animate opacity.
+ *
+ * That clipping is also what lets one run repeat forever without ever showing a
+ * second charge: a looping caller stretches `--surge-run-end` well past the run and
+ * plays the whole cycle, so the band spends the rest of it parked out of sight.
+ *
+ * Vertical placement is deliberately absent — the same run rides a link's midline
+ * and an entry's top and bottom edges, so the caller positions it.
+ */
+.surge-run {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.surge-run::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  width: 45%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent-primary),
+    #fff,
+    var(--accent-primary),
+    transparent
+  );
+  animation-name: surge-run;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+  animation-duration: var(--surge-duration);
+  animation-delay: var(--surge-delay);
+  animation-direction: var(--surge-direction, normal);
+  animation-iteration-count: var(--surge-iterations, 1);
+}
+
+@keyframes surge-run {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(var(--surge-run-end, 222%));
+  }
+}
+
+/*
+ * A charge riding an element's outline, in two halves that run together.
+ *
+ * The dash lengths are percentages because each path carries `pathLength="100"`,
+ * which is also what makes the two halves take the same time despite the top and
+ * bottom being different real lengths at the corners.
+ *
+ * Offsets run from 14 (the dash sitting just before the path's start) to -100 (just
+ * past its end), so it is off the path at both ends and needs no opacity keyframes.
+ *
+ * A looping caller widens the gap and sweeps the whole dash period instead, which
+ * costs nothing extra: the dash crosses the path in the same 114 units either way,
+ * and spends the remainder of the period in the gap, off the path.
+ */
+.outline-surge {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.outline-surge svg {
+  /* The stroke straddles the border line, so half of it sits outside the box. */
+  overflow: visible;
+  filter: drop-shadow(0 0 4px var(--accent-primary));
+}
+
+.outline-surge path {
+  fill: none;
+  stroke: var(--accent-primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 14 var(--surge-gap, 200);
+  animation-name: surge-trace;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+  animation-duration: var(--surge-duration);
+  animation-delay: var(--surge-delay);
+  animation-direction: var(--surge-direction, normal);
+  animation-iteration-count: var(--surge-iterations, 1);
+}
+
+@keyframes surge-trace {
+  from {
+    stroke-dashoffset: 14;
+  }
+  to {
+    stroke-dashoffset: var(--surge-trace-end, -100);
+  }
+}
+
+/*
+ * A charge that runs on its own rather than answering something the reader did.
+ * It carries no meaning, so when motion is not wanted it goes entirely rather than
+ * being frozen part-way along its path — the same call `.beam-host` makes.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .surge-ambient {
+    display: none;
+  }
+}
+
+/**
+ * The lit outline on a node box — the workflow's stages, the contact stations.
+ *
+ * Only the glow lives here: the border, fill and radius are plain utilities on the
+ * component, and a box-shadow is the one part of the box that cannot be. It has to
+ * bloom OUTSIDE the box without taking part in layout, which a second border or a
+ * ring would not do.
+ *
+ * Dials — `--node-box-glow` for how far the light reaches, `--accent-soft` for how
+ * bright it starts.
+ */
+.node-box {
+  box-shadow:
+    0 0 var(--node-box-glow) var(--accent-soft),
+    inset 0 1px 0 var(--gloss);
+}
+
+/**
+ * The four service frames.
+ *
+ * Columns are fluid but capped at `--service-card-max`, and the row centres once
+ * they reach it, so the frames hold their size as the section box widens instead
+ * of stretching with it. `minmax(0, …)` lets a column shrink below the cap on a
+ * narrow screen rather than overflowing the box.
+ *
+ * Breakpoints match Tailwind's `sm` and `xl` so the column counts stay in step
+ * with the rest of the layout (§9.6).
+ */
+.service-grid {
+  display: grid;
+  justify-content: center;
+  gap: var(--service-gap);
+  grid-template-columns: minmax(0, var(--service-card-max));
+}
+
+@media (min-width: 40rem) {
+  .service-grid {
+    grid-template-columns: repeat(2, minmax(0, var(--service-card-max)));
+  }
+}
+
+@media (min-width: 80rem) {
+  .service-grid {
+    grid-template-columns: repeat(4, minmax(0, var(--service-card-max)));
+  }
+}
+
+/**
+ * The services box's copy of the grid: tighter cells, and it dissolves as it
+ * travels toward the top-left, so the corner the white glow is thrown from stays
+ * the busiest. Must be used alongside `.texture-grid`, and must stay after it so
+ * these declarations win — both are single-class selectors.
+ */
+.texture-grid-section {
+  --grid-cell: 60px;
+  --grid-fade: linear-gradient(to top left, #000 0%, transparent 80%);
+}
+
+/**
+ * A second, finer grid over the top-left corner, dissolving toward the bottom
+ * right. That is the corner the section grid fades OUT of, so the two layers hand
+ * over to each other along the diagonal rather than overlapping.
+ *
+ * Sized here rather than in markup because the patch is part of what the class IS —
+ * a corner detail, not a full overlay. Same pairing rule as the section grid: use it
+ * alongside `.texture-grid`, and keep it after that rule so these values win.
+ */
+.texture-grid-corner {
+  --grid-cell: 45px;
+  --grid-fade: linear-gradient(to bottom right, #000 0%, transparent 80%);
+
+  width: var(--grid-corner-size);
+  height: var(--grid-corner-size);
+}
+
+/**
+ * HUD surfaces. `hud-stage` is the large backdrop the composition sits on;
+ * `hud-float` are the cards layered above it, so they carry the cast shadow that
+ * separates them from the stage.
+ */
+.hud-stage {
+  box-shadow: inset 0 1px 0 var(--gloss);
+}
+
+.hud-float {
+  box-shadow:
+    0 16px 36px rgb(0 0 0 / 55%),
+    0 2px 8px rgb(0 0 0 / 35%),
+    inset 0 1px 0 var(--gloss);
+}
+
+/**
+ * Re-lights a `float` panel for section-scale use.
+ *
+ * The border override goes through the token the panel already reads rather than
+ * setting `border-color` directly, so the panel keeps one border definition and
+ * the hero's hand-tuned cards are left exactly as they are.
+ *
+ * The shadow deliberately REPLACES `.hud-float`'s dark lift: that lift exists to
+ * separate a small card from the stage behind it, and on a full-width box against
+ * the page background it does nothing visible. This rule must therefore stay
+ * after `.hud-float` — both are single-class selectors, so source order decides.
+ *
+ * Tune the `--section-glow-*` tokens, not this rule.
+ */
+/*
+ * Holds the notch geometry for everything that has to agree on it: the panel, the
+ * notches, and the shadow caster. They are siblings, so the values live on their
+ * shared parent and inherit down rather than being restated on each.
+ */
+.section-panel {
+  /* `--panel-border` is NOT set here: it comes from `notchPanelStyle()`, so the
+     panel's border and the notch's line are driven by one number. */
+  /* Where the side borders hand over to the notch, measured from each end. A length
+     rather than a percentage so the straight lead-in does not stretch with the
+     panel. */
+  --notch-inset: 72px;
+}
+
+.hud-panel-section {
+  /* The outline moves to a pseudo-element so it can be masked — masking the panel
+     itself would mask its contents too. The border stays on the element as
+     transparent spacing, so no box metrics shift. */
+  border-color: transparent;
+  /* Drives the element's own border from the same number as the outline and the
+     notch, so thickening the edge moves all three together. */
+  border-width: var(--panel-border);
+  box-shadow: inset 0 1px 0 var(--gloss);
+}
+
+/*
+ * The panel's outer glow.
+ *
+ * `drop-shadow` rather than `box-shadow`, because a box-shadow is clipped to the
+ * element's RECTANGLE: its hard inner edge traced the box the notch had just cut
+ * away, which read as the panel still being there. A drop-shadow traces the alpha
+ * of what it contains, so masking the caster to the notch shapes the light too.
+ *
+ * The caster is a layer of its own for the same reason the outline is: a filter on
+ * the panel would also trace its content, casting light off every card and letter.
+ *
+ * `drop-shadow` has no spread, so the blur is held at twice the offset instead —
+ * that is the point where the light stops reaching back past the top and left.
+ */
+.section-glow {
+  filter: drop-shadow(
+    var(--section-glow-x) var(--section-glow-y) var(--section-glow-blur)
+      var(--section-glow)
+  );
+}
+
+/*
+ * The panel's real outline, drawn one pixel out so it covers the border box.
+ *
+ * The mask shows a band at each end and hides everything between, which removes the
+ * straight vertical runs the notch takes over. Both stops carry `--panel-border`
+ * because this layer is 2px taller than the padding box the notch is measured in —
+ * without it the line and the notch would miss each other by a pixel.
+ */
+.hud-panel-section::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--panel-border) * -1);
+  border: var(--panel-border) solid var(--border-section);
+  border-radius: inherit;
+  pointer-events: none;
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0 calc(var(--notch-inset) + var(--panel-border)),
+    transparent calc(var(--notch-inset) + var(--panel-border))
+      calc(100% - var(--notch-inset) - var(--panel-border)),
+    #000 calc(100% - var(--notch-inset) - var(--panel-border))
+  );
+}
+
+/**
+ * A bright L-bracket picking out the top-left corner: roughly half the top edge and
+ * half the left edge, each dissolving toward its midpoint.
+ *
+ * Two pseudo-elements, one per edge, because a single masked box cannot fade along
+ * two axes independently — a union mask would reveal both edges in full. `inset: -1px`
+ * lays each pseudo-element's border box exactly over the panel's own border rather
+ * than one pixel inside it.
+ */
+.hud-corner-accent::before,
+.hud-corner-accent::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.hud-corner-accent::before {
+  border-top: 1px solid var(--border-bright);
+  mask-image: linear-gradient(to right, #000 0 40%, transparent 65%);
+}
+
+.hud-corner-accent::after {
+  border-left: 1px solid var(--border-bright);
+  mask-image: linear-gradient(to bottom, #000 0 40%, transparent 65%);
+}
+
+/**
+ * Hover treatment for the floating HUD cards: brighten and lift slightly.
+ *
+ * The brightening is a background-COLOUR wash showing through the translucent
+ * gradient rather than a swap of gradient stops, because `background-image` does not
+ * interpolate — changing the stops would snap instead of fade. Border colour,
+ * background colour, box-shadow and transform all animate cleanly.
+ */
+.hud-interactive {
+  transition:
+    transform 250ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 250ms ease,
+    background-color 250ms ease,
+    box-shadow 250ms ease;
+}
+
+.hud-interactive:hover {
+  transform: scale(1.03);
+  border-color: var(--border-bright);
+  background-color: var(--gloss);
+  box-shadow:
+    0 22px 46px rgb(0 0 0 / 60%),
+    0 0 18px var(--glow-edge),
+    inset 0 1px 0 var(--gloss);
+}
+
+/**
+ * Carousel transition for the HUD composition.
+ *
+ * Outgoing layer drifts left and dims; incoming layer comes forward from the back of
+ * the scene. The enter keyframe resolves to `transform: none` rather than `scale(1)`
+ * so no stacking context lingers once it settles — a persistent transform would
+ * become a backdrop root and break the panels' backdrop-blur.
+ */
+/*
+ * Carousel motion, applied to each PANEL rather than to the layer that holds them.
+ *
+ * A card's `backdrop-filter` can only sample content inside its nearest compositing
+ * ancestor, so animating the wrapping layer left the blur resolving against nothing —
+ * and `animation-fill-mode: both` kept that true even after the animation ended. An
+ * element's own animation does not have that effect on its own backdrop-filter, so the
+ * blur is now present from the first frame and never toggles.
+ *
+ * `transform-origin` is set per panel to the composition's centre, expressed in that
+ * panel's local coordinates, so five independent transforms reproduce exactly what one
+ * transform on the group used to do. Without it each panel would scale about its own
+ * middle and the set would puff up in place instead of travelling forward as a whole.
+ */
+.hud-panel-enter,
+.hud-panel-exit {
+  transform-origin: var(--panel-origin-x) var(--panel-origin-y);
+}
+
+.hud-panel-enter {
+  /*
+   * `backwards`, not `both`: the keyframe ends on `opacity: 1; transform: none`, which
+   * are already the element's defaults, so there is nothing worth filling forwards.
+   * Filling would keep the animation winning the cascade over `:hover` — animations
+   * outrank normal author rules — and leave the panel promoted for good.
+   */
+  animation: hud-panel-enter 1000ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.hud-panel-exit {
+  animation: hud-panel-exit 800ms cubic-bezier(0.4, 0, 0.6, 1) both;
+  pointer-events: none;
+}
+
+@keyframes hud-panel-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hud-panel-exit {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(var(--panel-slide-x)) scale(0.93);
+  }
+}
+
+/**
+ * Hovering anywhere over the composition spreads it open.
+ *
+ * Animated through position and size rather than a `transform` on a wrapper: a
+ * transformed ancestor becomes a compositing context, and the cards' backdrop blur
+ * can only sample inside it — the exact fault that made the blur vanish earlier.
+ * Five absolutely positioned boxes make this cheap, since none of them affect the
+ * layout of anything else.
+ */
+.hud-panel-slot {
+  transition:
+    left 450ms cubic-bezier(0.22, 1, 0.36, 1),
+    top 450ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 450ms cubic-bezier(0.22, 1, 0.36, 1),
+    height 450ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/**
+ * A scroll track the panel can show off rather than hide.
+ *
+ * `scroll` rather than `auto` because the reference keeps the rail visible whether
+ * or not there is anything to scroll — it reads as instrumentation on the field.
+ * Both syntaxes are declared: Firefox takes the standard one, WebKit the
+ * pseudo-elements, and neither understands the other.
+ */
+.field-scroll {
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  /* Not `--border-control`: that one deliberately disappears into the panel, and a
+     rail nobody can see is not a rail. */
+  scrollbar-color: var(--surface-elevated) transparent;
+}
+
+.field-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.field-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.field-scroll::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: var(--surface-elevated);
+}
+
+/*
+ * The inward step in a panel's side border. Pulled out by exactly the border width,
+ * so the element's OUTER pixel column lands on the border line it replaces and the
+ * step runs toward the content.
+ *
+ * `--notch-inset` is shared with the mask that hides the border underneath, so the
+ * two ends meet. Changing it here alone would leave a gap or a doubled line.
+ */
+.edge-notch {
+  position: absolute;
+  inset-block: var(--notch-inset);
+}
+
+/*
+ * The path is drawn stepping left, so the LEFT edge is the mirrored one. Both sides
+ * share that single curve definition and so cannot drift apart.
+ */
+.edge-notch-left {
+  left: calc(var(--panel-border, 1px) * -1);
+  transform: scaleX(-1);
+}
+
+.edge-notch-right {
+  right: calc(var(--panel-border, 1px) * -1);
+}
+
+/* The straight run, held at the bulge by the flex container's `items-start`. */
+.edge-notch-line {
+  width: var(--notch-line);
+  background: var(--notch-color);
+}
+
+/**
+ * The sheet a launched paper plane flies across: the whole viewport, over every
+ * layer of the page, and transparent to the pointer so it cannot swallow a click
+ * on the form it launched from.
+ *
+ * Portalled to `<body>` rather than rendered where it belongs in the tree, because
+ * `position: fixed` is measured against the nearest TRANSFORMED ancestor rather
+ * than the viewport — and the contact section sits inside a `.rise`, which is
+ * transformed while it plays. `overflow` clips the plane once it is past the edge
+ * rather than trusting every browser to agree that a fixed child cannot scroll
+ * its container.
+ *
+ * 60 clears the sticky navbar's 50. The plane passes over it mid-lap.
+ */
+.send-plane-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/**
+ * The plane itself. Its `transform` is rewritten every frame, and nothing else is —
+ * so it is composited rather than laid out, and it cannot shift the page it is
+ * flying over.
+ */
+.send-plane {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+}
+
+/**
+ * The lit copy, stacked exactly over the resting one and faded up as the plane
+ * leaves the dial.
+ *
+ * Two glyphs rather than one interpolated colour: it takes the plane from the
+ * dial's translucent chrome to a lit accent for free, on the compositor, instead
+ * of computing a colour on the main thread on every frame of the launch.
+ */
+.send-plane-lit {
+  filter: drop-shadow(0 0 6px var(--accent-glow));
+}
+
+/**
+ * Air moving past the plane while it holds at the centre of the screen.
+ *
+ * A plane stopped in mid-air reads as a paused picture however well it is drawn —
+ * nothing on screen says it is still flying. These say it: a handful of streaks
+ * coming past it out of the direction it faces, running for as long as the wait
+ * lasts.
+ *
+ * They live INSIDE the plane's own wrapper rather than beside it, so they are
+ * carried by the transform the flight already writes every frame: they sit with it,
+ * turn with it, and grow with it as it comes closer, at no cost to the animation
+ * frame and with nothing to keep in step.
+ *
+ * The flight shows them by putting `send-plane-streaming` on the plane, and the
+ * fade is a transition rather than anything it has to drive — which is also what
+ * takes them away again when a failed send turns the plane round.
+ */
+.send-plane-streaks {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  /*
+   * The going. It reads on the rule WITHOUT the class, because a transition is
+   * taken from whichever state is being moved to — so this one runs when the class
+   * comes off and the plane starts moving again.
+   */
+  transition: opacity 450ms ease-out;
+}
+
+/* And the coming, slower, so the air builds rather than switching on. */
+.send-plane-streaming .send-plane-streaks {
+  opacity: 1;
+  transition-duration: 700ms;
+}
+
+/**
+ * One streak. Laid out from the plane's centre and moved by the keyframe below,
+ * so `left`/`top` place it and `transform` is the only thing that animates.
+ *
+ * Transparent at both ends, which is what keeps it a rush of air rather than a
+ * drawn line: it has no start and no finish, it only passes.
+ */
+.send-plane-streak {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 1px;
+  border-radius: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--accent-primary),
+    transparent
+  );
+  animation: streak-run var(--streak-life) linear infinite;
+  animation-delay: var(--streak-delay);
+}
+
+/*
+ * What makes each one different. All five are the same element in the markup —
+ * length, pace, head start and distance off the plane's line are one-off styling
+ * with no behaviour attached, so they belong here and not in five props.
+ *
+ * The numbers are in the plane's own scale, not the screen's: at rest the plane is
+ * 41px, so a 38px streak is about its length. Everything here grows with it as it
+ * comes closer, which is why there is nothing viewport-dependent in this block.
+ */
+.send-plane-streak:nth-child(1) {
+  width: 38px;
+  margin-top: -15px;
+  --streak-life: 760ms;
+  --streak-delay: 0ms;
+  --streak-peak: 0.5;
+}
+
+.send-plane-streak:nth-child(2) {
+  width: 26px;
+  margin-top: -7px;
+  --streak-life: 900ms;
+  --streak-delay: 180ms;
+  --streak-peak: 0.34;
+}
+
+.send-plane-streak:nth-child(3) {
+  width: 44px;
+  margin-top: 5px;
+  --streak-life: 700ms;
+  --streak-delay: 90ms;
+  --streak-peak: 0.55;
+}
+
+.send-plane-streak:nth-child(4) {
+  width: 22px;
+  margin-top: 13px;
+  --streak-life: 1040ms;
+  --streak-delay: 320ms;
+  --streak-peak: 0.3;
+}
+
+.send-plane-streak:nth-child(5) {
+  width: 32px;
+  margin-top: 19px;
+  --streak-life: 840ms;
+  --streak-delay: 460ms;
+  --streak-peak: 0.42;
+}
+
+/**
+ * In ahead of the plane and away behind it. The travel is the same for all five —
+ * far enough either side that a streak is already gone before it fades, so none of
+ * them is ever seen to appear or stop.
+ */
+@keyframes streak-run {
+  from {
+    transform: translateX(46px);
+    opacity: 0;
+  }
+
+  18% {
+    opacity: var(--streak-peak);
+  }
+
+  72% {
+    opacity: var(--streak-peak);
+  }
+
+  to {
+    transform: translateX(-78px);
+    opacity: 0;
+  }
+}
+
+/**
+ * The oval the plane is flying, drawn.
+ *
+ * An inspection aid first — the path is worked out from the viewport at take-off,
+ * so until it is drawn the only way to know what shape it came out as is to watch
+ * the plane trace it. Dashed and faint so that it can also simply be left on: it
+ * reads as a course plotted on the HUD rather than a debugging outline.
+ *
+ * Attributes are set from the flight rather than written here, because the shape
+ * belongs to the viewport and changes with it.
+ */
+.send-plane-track {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: var(--accent-primary);
+  stroke-opacity: 0.25;
+  stroke-width: 1;
+  stroke-dasharray: 6 9;
+}
+
+/**
+ * Progress bar fill glow. Sized in `em`, so it grows and shrinks with the bar's
+ * context instead of staying a fixed blur.
+ */
+.progress-fill {
+  width: var(--progress-value);
+  box-shadow: 0 0 0.9em var(--accent-glow);
+}
+
+/**
+ * Hover reveal: the bar sits empty until the pointer is over its hover scope, then
+ * fills to its value, and drains back when the pointer leaves.
+ *
+ * The two directions have different timings: filling eases out over 900ms, draining
+ * runs a quicker 600ms. Each transition is the one declared on the state being
+ * ENTERED, which is why each rule carries its own. The fill also fades in at the
+ * start and only fades out AFTER the drain, because at zero width the glow alone
+ * would still paint a bright dot at the bar's left end.
+ *
+ * Width rather than `scaleX`: scaling would squash the rounded ends and the glow
+ * along with the fill. The fill is absolutely positioned, so animating its width
+ * reflows nothing around it.
+ */
+.progress-reveal-hover .progress-fill {
+  width: 0;
+  opacity: 0;
+  transition:
+    width 600ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 150ms linear 600ms;
+}
+
+.hover-reveal-scope:hover .progress-reveal-hover .progress-fill {
+  width: var(--progress-value);
+  opacity: 1;
+  transition:
+    width 900ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 150ms linear;
+}
+
+/* Touch screens have no hover to wait for, so the value is shown straight away. */
+@media (hover: none) {
+  .progress-reveal-hover .progress-fill {
+    width: var(--progress-value);
+    opacity: 1;
+  }
+}
+
+/**
+ * Capability readout: lays itself out to fit whatever box it is given.
+ *
+ * The outer element is a SIZE container, so the body can measure both of the box's
+ * dimensions. Everything inside it is in `em` and hangs off ONE unit, the body's
+ * font size, so the whole card scales as a single piece rather than as a dozen
+ * independent breakpoints.
+ *
+ * That unit comes from the box's SHORTER side (`cqmin`). A 100×100 box and a 100×200
+ * box therefore get the same size of type, and the taller one shows more rows rather
+ * than bigger letters. 6.4% is measured off the reference card, where the row text
+ * is 38px on a 594px-tall card. The clamp keeps text readable in the smallest cards
+ * and stops it ballooning in a large one.
+ *
+ * The other `em` values below come from the same reference, divided by that 38px.
+ */
+.capability-readout {
+  container: capability-readout / size;
+}
+
+.capability-readout-body {
+  font-size: clamp(0.5rem, 6.4cqmin, 2.5rem);
+  padding: 1.6em 1.8em 1.8em;
+}
+
+.capability-readout-title {
+  font-size: 1.63em;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+}
+
+.capability-readout-bar {
+  height: 0.62em;
+  margin-top: 1.15em;
+  flex-shrink: 0;
+}
+
+/*
+ * Rows that don't fit are hidden WHOLE, never cut in half. With a column flex that
+ * wraps, any row that would overflow the remaining height moves into a second
+ * column, and that column sits entirely outside the box, which clips it. So the list
+ * shows exactly as many complete rows as there is room for, with no measuring and no
+ * per-size rules.
+ */
+.capability-readout-list {
+  display: flex;
+  flex: 1;
+  flex-flow: column wrap;
+  align-content: flex-start;
+  row-gap: 1em;
+  column-gap: 100%;
+  min-height: 0;
+  margin-top: 1.9em;
+  overflow: hidden;
+}
+
+.capability-readout-list > li {
+  width: 100%;
+  gap: 1.05em;
+  line-height: 1.2;
+}
+
+/* A notch above the 1em unit: row labels read small next to the 1.5em icons. */
+.capability-readout-label {
+  font-size: 1.2em;
+}
+
+.capability-readout-icon {
+  font-size: 1.5em;
+  flex-shrink: 0;
+}
+
+/**
+ * Ring gauge: a segmented dial whose lit arc runs clockwise from 12 o'clock.
+ *
+ * It sizes from its OWN box, not from the page. The outer element is a size
+ * container and the dial is `100cqmin` square, so the gauge is always the largest
+ * circle that fits whatever space it's given, without any measuring.
+ *
+ * The ring itself is CSS, not SVG, so it needs no unique ids. A radial mask cuts
+ * the band out of a disc and a repeating conic mask cuts the segment gaps. The
+ * track and the fill are the same shape. The fill carries a THIRD mask layer, a
+ * sweep that shows it only up to `--gauge-fill`. Revealing by mask rather than by
+ * colour stop is what lets the fill be any paint: one accent, or a run of coloured
+ * segments (`--gauge-paint`), all revealed by the same sweep.
+ *
+ * The band width and gap are set on the root, so a consumer can override them for
+ * one gauge.
+ */
+@property --gauge-fill {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+
+.ring-gauge {
+  /* Band width, as a share of the radius: 12px on a 111px radius in the reference. */
+  --ring-inner: 89%;
+  /* Gap between the four segments. */
+  --ring-gap: 7deg;
+  container-type: size;
+  display: grid;
+  place-items: center;
+}
+
+/* One unbroken band, for a ring whose divisions come from its paint instead. */
+.ring-gauge-continuous {
+  --ring-gap: 0deg;
+}
+
+.ring-gauge-dial {
+  position: relative;
+  width: 100cqmin;
+  height: 100cqmin;
+}
+
+.ring-gauge-shape {
+  --ring-band: radial-gradient(
+    farthest-side,
+    transparent calc(var(--ring-inner) - 1%),
+    #000 var(--ring-inner)
+  );
+  --ring-gaps: repeating-conic-gradient(
+    from calc(var(--ring-gap) / 2),
+    #000 0deg calc(90deg - var(--ring-gap)),
+    transparent 0deg 90deg
+  );
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  -webkit-mask: var(--ring-band), var(--ring-gaps);
+  -webkit-mask-composite: source-in;
+  mask: var(--ring-band), var(--ring-gaps);
+  mask-composite: intersect;
+}
+
+.ring-gauge-track {
+  background: var(--border-strong);
+}
+
+/*
+ * The glow lives on a wrapper because `filter` is applied BEFORE `mask`. A
+ * drop-shadow on the masked fill itself would be cut away along with everything
+ * outside the band.
+ */
+.ring-gauge-glow {
+  position: absolute;
+  inset: 0;
+  filter: drop-shadow(0 0 2.5cqmin var(--accent-glow));
+}
+
+.ring-gauge-fill {
+  --gauge-fill: var(--gauge-value);
+  background: var(--gauge-paint, var(--accent-primary));
+  -webkit-mask:
+    var(--ring-band), var(--ring-gaps),
+    conic-gradient(#000 var(--gauge-fill), transparent 0);
+  -webkit-mask-composite: source-in;
+  mask:
+    var(--ring-band), var(--ring-gaps),
+    conic-gradient(#000 var(--gauge-fill), transparent 0);
+  mask-composite: intersect;
+}
+
+/* Sized off the dial: the reference's 62px value on a 222px ring. */
+.ring-gauge-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Overridable per gauge: a longer reading such as "250+" needs a smaller size. */
+  font-size: var(--ring-value-size, 28cqmin);
+  line-height: 1;
+}
+
+/*
+ * Hover reveal, matching the progress bar's: empty at rest, fills while the pointer
+ * is over the nearest `hover-reveal-scope`, drains when it leaves. The sweep is a
+ * registered `<percentage>`, which is what lets a gradient stop be transitioned at
+ * all. Unregistered, it would snap.
+ */
+.ring-gauge-reveal-hover .ring-gauge-fill {
+  --gauge-fill: 0%;
+  opacity: 0;
+  transition:
+    --gauge-fill 600ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 150ms linear 600ms;
+}
+
+.hover-reveal-scope:hover .ring-gauge-reveal-hover .ring-gauge-fill {
+  --gauge-fill: var(--gauge-value);
+  opacity: 1;
+  transition:
+    --gauge-fill 900ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 150ms linear;
+}
+
+@media (hover: none) {
+  .ring-gauge-reveal-hover .ring-gauge-fill {
+    --gauge-fill: var(--gauge-value);
+    opacity: 1;
+  }
+}
+
+/**
+ * Metric readout. Same approach as the capability readout: a size container, with
+ * one `em` unit taken from the box's shorter side and every measurement hung off it.
+ *
+ * Measured off the reference card (534×436), where the tier labels are 25px: that
+ * gives 1em = 5.7% of the short side, and the other values below are reference px
+ * divided by 25.
+ */
+.metric-readout {
+  container: metric-readout / size;
+}
+
+.metric-readout-body {
+  font-size: clamp(0.5rem, 5.7cqmin, 2.25rem);
+  padding: 1.3em 1.9em 1.5em 1.4em;
+}
+
+.metric-readout-title {
+  font-size: 1.45em;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+  text-align: right;
+}
+
+.metric-readout-main {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 1.4em;
+  min-height: 0;
+  margin-top: 0.6em;
+}
+
+/* The gauge takes whatever the tiers leave; RingGauge fits a circle inside it. */
+.metric-readout-dial {
+  flex: 1;
+  align-self: stretch;
+  min-width: 0;
+}
+
+.metric-readout-tiers {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 1.1em;
+  letter-spacing: 0.04em;
+}
+
+.metric-readout-tiers > li {
+  gap: 1em;
+  line-height: 1;
+}
+
+.metric-readout-swatch {
+  width: 1.2em;
+  height: 1.2em;
+  border-radius: 0.25em;
+}
+
+.metric-readout-swatch-active {
+  box-shadow: 0 0 0.8em var(--accent-glow);
+}
+
+/*
+ * In a card too narrow for both, the tiers give up their room so the gauge, which
+ * carries the reading, keeps a usable size.
+ */
+@container metric-readout (width < 10rem) {
+  .metric-readout-tiers {
+    display: none;
+  }
+}
+
+/**
+ * Style readout. Same approach as the other readouts: a size container, with one
+ * `em` unit taken from the box's shorter side.
+ *
+ * Measured off the reference card (820×606), where the tag text is 42px: that gives
+ * 1em = 6.9% of the short side. The tiles are 195px (4.6em) with 40px gaps. In a box
+ * narrower than that, the grid columns shrink rather than overflow, and the tiles
+ * stay square. The tiles themselves, with their tint and hover behaviour, are
+ * `.hud-tile`.
+ */
+.style-readout {
+  container: style-readout / size;
+}
+
+.style-readout-body {
+  font-size: clamp(0.5rem, 6.9cqmin, 2.5rem);
+  padding: 1.2em 1.45em 1.4em;
+}
+
+.style-readout-title {
+  font-size: 1.05em;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+}
+
+/*
+ * The tile row is its own size container. It is 4.6em tall when there is room, and
+ * it is the ONLY thing that shrinks when a card is short. The tiles are then sized
+ * to the smaller of 4.6em and the row's height (`100cqh`), so in a short card they
+ * get smaller and the title and caption stay.
+ */
+.style-readout-tiles {
+  flex: 0 1 4.6em;
+  min-height: 0;
+  margin-top: 1.2em;
+  container-type: size;
+}
+
+.style-readout-tiles > ul {
+  display: grid;
+  grid-template-columns: repeat(
+    var(--tile-count),
+    minmax(0, min(4.6em, 100cqh))
+  );
+  gap: 0.95em;
+}
+
+/*
+ * A single line describing the style. Allowed to wrap onto a second line, and
+ * stopped there, so a long caption can't push into the space below.
+ */
+.style-readout-caption {
+  margin-top: 1.25em;
+  font-size: 1em;
+  line-height: 1.4;
+  letter-spacing: 0.03em;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+/*
+ * Only in a card too small for the caption to be readable at all (a phone-sized
+ * card) is it dropped. Above that, the tiles shrink to make room for it instead.
+ */
+@container style-readout (height < 5.5rem) {
+  .style-readout-caption {
+    display: none;
+  }
+}
+
+/**
+ * HUD tile: a tinted square, shared by every readout that shows a row or grid of
+ * tiles. It owns the tile's look and both of its hover effects; readouts only
+ * decide how many there are and where they sit.
+ *
+ * A tile's colour comes from one custom property, `--tile-tone`, set by its tone
+ * class. Every tint mixes from it, so a tone is a single value to change. Content
+ * (an icon, a swatch) is sized from the tile itself, which is an inline-size
+ * container.
+ *
+ * Two hover effects, on two different triggers:
+ * 1. Over the whole readout (the nearest `hover-reveal-scope`), the tiles light up
+ *    in sequence: border, glow and content come up together. On leave they dim in
+ *    reverse order, so the sequence unwinds instead of switching off all at once.
+ *    The per-tile delays (`--tile-enter-delay` / `--tile-exit-delay`) are set from
+ *    each tile's position.
+ * 2. Over a single tile, that tile grows by 15%, keeping its place in the stack.
+ *    This has no stagger, so it follows the pointer immediately.
+ *
+ * Every rule that sets `transition` lists all of them, because whichever rule is
+ * active replaces the whole value.
+ */
+.hud-tile-tone-neutral {
+  --tile-tone: var(--tone-neutral);
+}
+
+.hud-tile-tone-cool {
+  --tile-tone: var(--tone-cool);
+}
+
+.hud-tile-tone-warm {
+  --tile-tone: var(--tone-warm);
+}
+
+.hud-tile-tone-dim {
+  --tile-tone: var(--tone-dim);
+}
+
+.hud-tile {
+  --tile-tint: 16%;
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  overflow: hidden;
+  container-type: inline-size;
+  border: 1px solid color-mix(in srgb, var(--tile-tone) 28%, transparent);
+  /* A share of the tile, so the corners stay in proportion at any tile size. */
+  border-radius: 12%;
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--tile-tone) var(--tile-tint), transparent),
+      transparent 72%
+    ),
+    var(--surface);
+  transition:
+    border-color 450ms cubic-bezier(0.4, 0, 0.2, 1) var(--tile-exit-delay),
+    box-shadow 450ms cubic-bezier(0.4, 0, 0.2, 1) var(--tile-exit-delay),
+    transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The current item in a set: a brighter edge and a stronger tint, lit or not. */
+.hud-tile-selected {
+  --tile-tint: 32%;
+  border-color: color-mix(in srgb, var(--tile-tone) 60%, transparent);
+}
+
+.hud-tile-content {
+  display: flex;
+  font-size: 50cqi;
+  color: var(--tile-tone);
+  opacity: 0.6;
+  transition: opacity 450ms cubic-bezier(0.4, 0, 0.2, 1) var(--tile-exit-delay);
+}
+
+.hover-reveal-scope:hover .hud-tile {
+  border-color: color-mix(in srgb, var(--tile-tone) 70%, transparent);
+  box-shadow:
+    0 0 0.9em color-mix(in srgb, var(--tile-tone) 30%, transparent),
+    inset 0 0 1.1em color-mix(in srgb, var(--tile-tone) 14%, transparent);
+  transition:
+    border-color 600ms cubic-bezier(0.22, 1, 0.36, 1) var(--tile-enter-delay),
+    box-shadow 600ms cubic-bezier(0.22, 1, 0.36, 1) var(--tile-enter-delay),
+    transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hover-reveal-scope:hover .hud-tile-content {
+  opacity: 1;
+  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1)
+    var(--tile-enter-delay);
+}
+
+/*
+ * Tiles at the ends of a row grow towards the INSIDE of it. Grown from the centre,
+ * they would spill past the card's edge, where the card clips them.
+ */
+.hud-tile-grow-start {
+  transform-origin: left center;
+}
+
+.hud-tile-grow-end {
+  transform-origin: right center;
+}
+
+/*
+ * Grows in place and keeps its stacking order: a neighbour that overlaps it still
+ * paints over it.
+ */
+.hud-tile:hover {
+  transform: scale(1.15);
+}
+
+/* Touch screens have no hover to wait for, so the tiles start lit. */
+@media (hover: none) {
+  .hud-tile {
+    border-color: color-mix(in srgb, var(--tile-tone) 70%, transparent);
+  }
+
+  .hud-tile-content {
+    opacity: 1;
+  }
+}
+
+/**
+ * UI kit readout. Same approach as the other readouts: a size container, with one
+ * `em` unit taken from the box's shorter side.
+ *
+ * Measured off the reference card (318×228), where the title is 18px: that gives
+ * 1em = 7.9% of the short side. The tiles are 50px (2.8em) with 14px (0.75em) gaps.
+ */
+.ui-kit-readout {
+  container: ui-kit-readout / size;
+}
+
+.ui-kit-readout-body {
+  --grid-gap: 0.75em;
+  font-size: clamp(0.5rem, 7.9cqmin, 2.25rem);
+  padding: 1.1em 0.95em 1.05em 1.15em;
+}
+
+.ui-kit-readout-title {
+  line-height: 1.15;
+  letter-spacing: 0.03em;
+}
+
+/*
+ * The grid is its own size container and the only part that shrinks when a card is
+ * short. Each tile is the smaller of 2.8em and an equal share of the grid's height,
+ * so every row always fits and the tiles stay square.
+ */
+.ui-kit-readout-grid {
+  flex: 0 1
+    calc(var(--grid-rows) * 2.8em + (var(--grid-rows) - 1) * var(--grid-gap));
+  min-height: 0;
+  margin-top: 1.2em;
+  container-type: size;
+}
+
+.ui-kit-readout-grid > ul {
+  display: grid;
+  grid-template-columns: repeat(
+    var(--grid-cols),
+    minmax(
+      0,
+      min(
+        2.8em,
+        (100cqh - (var(--grid-rows) - 1) * var(--grid-gap)) / var(--grid-rows)
+      )
+    )
+  );
+  gap: var(--grid-gap);
+}
+
+/* A colour sample: the whole tile, filled with a gradient between two tones. */
+.ui-kit-swatch {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--swatch-from), var(--swatch-to));
+}
+
+.ui-kit-swatch-from-neutral {
+  --swatch-from: var(--tone-neutral);
+}
+
+.ui-kit-swatch-from-cool {
+  --swatch-from: var(--tone-cool);
+}
+
+.ui-kit-swatch-from-warm {
+  --swatch-from: var(--tone-warm);
+}
+
+.ui-kit-swatch-from-dim {
+  --swatch-from: var(--tone-dim);
+}
+
+.ui-kit-swatch-to-neutral {
+  --swatch-to: var(--tone-neutral);
+}
+
+.ui-kit-swatch-to-cool {
+  --swatch-to: var(--tone-cool);
+}
+
+.ui-kit-swatch-to-warm {
+  --swatch-to: var(--tone-warm);
+}
+
+.ui-kit-swatch-to-dim {
+  --swatch-to: var(--tone-dim);
+}
+
+/**
+ * Breakdown readout. Same approach as the other readouts: a size container, with
+ * one `em` unit taken from the box's shorter side.
+ *
+ * Measured off the reference card (286×176), where the legend labels are 11px: that
+ * gives 1em = 6.25% of the short side.
+ */
+.breakdown-readout {
+  container: breakdown-readout / size;
+}
+
+.breakdown-readout-body {
+  font-size: clamp(0.5rem, 6.25cqmin, 2.25rem);
+  gap: 1.1em;
+  padding: 1.6em 1.9em;
+}
+
+/*
+ * Square, as tall as the card allows, and the first thing to give up width when the
+ * legend needs it; the gauge inside always fits the largest circle it can. The band
+ * is thicker than the metric gauge's, as in the reference (10px on a 60px radius).
+ * This works because this rule comes after `.ring-gauge` in the file and has equal
+ * specificity, so it wins.
+ */
+.breakdown-readout-dial {
+  --ring-inner: 84%;
+  flex-shrink: 1;
+  height: 100%;
+  min-width: 0;
+  aspect-ratio: 1;
+}
+
+.breakdown-readout-legend {
+  flex-shrink: 0;
+}
+
+.breakdown-readout-title {
+  font-size: 1.2em;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+}
+
+.breakdown-readout-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+  margin-top: 1em;
+}
+
+.breakdown-readout-items > li {
+  gap: 1.1em;
+  line-height: 1.2;
+}
+
+.breakdown-readout-swatch {
+  flex-shrink: 0;
+  width: 1.1em;
+  height: 1.1em;
+  border-radius: 0.25em;
+}
+
+/* In a card too narrow for both, the legend gives way so the ring keeps its size. */
+@container breakdown-readout (width < 10rem) {
+  .breakdown-readout-legend {
+    display: none;
+  }
+}
+
+/**
+ * Stack meter: a column of blocks laid out bottom-up (`column-reverse`), so the
+ * first block in the DOM is the bottom one and DOM order is lighting order.
+ *
+ * Each block's colour is mixed between `--meter-from` (bottom) and `--meter-to`
+ * (top) by its `--block-mix`, so a column of any height fades evenly.
+ */
+.stack-meter {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.2em;
+}
+
+.stack-meter-block {
+  --block-color: color-mix(
+    in srgb,
+    var(--meter-to) var(--block-mix),
+    var(--meter-from)
+  );
+  flex: 1;
+  min-height: 0;
+  border-radius: 0.12em;
+  background-color: var(--border-strong);
+  transition:
+    background-color 300ms cubic-bezier(0.4, 0, 0.2, 1) var(--block-exit-delay),
+    box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) var(--block-exit-delay);
+}
+
+.stack-meter-block-lit {
+  background-color: var(--block-color);
+  box-shadow: 0 0 0.6em color-mix(in srgb, var(--block-color) 45%, transparent);
+}
+
+/*
+ * Hover reveal, in step with the other gauges: unlit at rest. Over the nearest
+ * `hover-reveal-scope` the lit blocks come on one at a time from the bottom, and on
+ * leave they go out one at a time from the top.
+ */
+.stack-meter-reveal-hover .stack-meter-block-lit {
+  background-color: var(--border-strong);
+  box-shadow: none;
+}
+
+.hover-reveal-scope:hover .stack-meter-reveal-hover .stack-meter-block-lit {
+  background-color: var(--block-color);
+  box-shadow: 0 0 0.6em color-mix(in srgb, var(--block-color) 45%, transparent);
+  transition:
+    background-color 350ms cubic-bezier(0.22, 1, 0.36, 1)
+      var(--block-enter-delay),
+    box-shadow 350ms cubic-bezier(0.22, 1, 0.36, 1) var(--block-enter-delay);
+}
+
+@media (hover: none) {
+  .stack-meter-reveal-hover .stack-meter-block-lit {
+    background-color: var(--block-color);
+  }
+}
+
+/**
+ * Tally readout. Same approach as the other readouts: a size container, with one
+ * `em` unit taken from the box's shorter side.
+ *
+ * Measured off the reference card (412×290), where the title is 22px: that gives
+ * 1em = 7.6% of the short side. Each meter is 33px wide (1.5em), the column is
+ * 132px tall (6em), and the blocks have 5px gaps.
+ */
+.tally-readout {
+  container: tally-readout / size;
+}
+
+.tally-readout-body {
+  font-size: clamp(0.5rem, 7.6cqmin, 2.5rem);
+  gap: 1em;
+  padding: 1.5em 1.3em 1.5em 1.5em;
+}
+
+/*
+ * Square, as tall as the card allows, and the first thing to give up width when
+ * space runs short. "250+" is four characters, so the centre figure is set smaller
+ * than the gauge's default. These overrides work because this rule comes after
+ * `.ring-gauge` in the file and has equal specificity.
+ */
+.tally-readout-dial {
+  --ring-value-size: 22cqmin;
+  flex-shrink: 1;
+  height: 100%;
+  min-width: 0;
+  aspect-ratio: 1;
+}
+
+/* Title at the top right, meters at the bottom right, as in the reference. */
+.tally-readout-aside {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-left: auto;
+}
+
+.tally-readout-title {
+  font-size: 1em;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+}
+
+/* The meter column is what gives way when the card is short. */
+.tally-readout-meters {
+  display: flex;
+  flex: 0 1 6em;
+  gap: 0.45em;
+  min-height: 0;
+  margin-top: 0.8em;
+}
+
+.tally-readout-meter {
+  width: 1.5em;
+}
+
+/* In a card too narrow for both, the title and meters give way to the ring. */
+@container tally-readout (width < 10rem) {
+  .tally-readout-aside {
+    display: none;
+  }
+}
+
+/**
+ * Device readout. Same approach as the other readouts: a size container, with one
+ * `em` unit (for the legend and spacing) taken from the box's shorter side.
+ * Measured off the reference card (1034×736), where the legend labels are 28px:
+ * 1em = 3.8% of the short side.
+ *
+ * The devices sit on a fixed 4:3 stage: the largest 4:3 box that fits the card,
+ * held to the bottom-left. Every device is placed in percentages of that stage, so
+ * the group scales as one piece and the overlaps never shift.
+ */
+.device-readout {
+  /*
+   * >>> THE ONE SIZE DIAL for all three devices. 1 = the group fills its 4:3 stage
+   * edge to edge. Raise it to enlarge all three together (about their shared
+   * centre); lower it to shrink them. Above about 1.08, the outer edges start to
+   * be clipped by the card. The layout, overlaps and title are unaffected.
+   */
+  --device-scale: 1;
+  container: device-readout / size;
+}
+
+.device-readout-body {
+  position: relative;
+  font-size: clamp(0.5rem, 3.8cqmin, 2rem);
+}
+
+.device-readout-stage-area {
+  position: absolute;
+  inset: 1em;
+  display: flex;
+  align-items: flex-end;
+  container-type: size;
+}
+
+.device-readout-stage {
+  position: relative;
+  width: min(100cqw, 100cqh * 4 / 3);
+  aspect-ratio: 4 / 3;
+  /* Applies `--device-scale`. A transform, so resizing never reflows the card. */
+  transform: scale(var(--device-scale));
+}
+
+/*
+ * Placements, on a stage 100 units wide and 75 tall. Each box has the aspect ratio of
+ * its (cropped) render, so the box IS the device. The desktop sits at the back
+ * left, the tablet in front of its lower right, and the phone in front of both.
+ * Later in the DOM paints on top, so no z-index is needed.
+ *
+ * TUNING: `top` is a % of the stage's HEIGHT; `left` and `width` are % of its WIDTH.
+ * Height follows from `width` through `aspect-ratio`, so leave that alone. The
+ * desktop spans about 80% of the stage's height, so a tablet `top` of 38% puts its
+ * top edge about a third of the way down the desktop. As set, the group spans the
+ * stage's full width (desktop's left edge to phone's right edge) and 9–91% of its
+ * height. To resize the whole group, use `--device-scale` above, not these values.
+ */
+.device-readout-desktop {
+  top: 9%;
+  left: 0;
+  width: 75.5%;
+  aspect-ratio: 1214 / 959;
+}
+
+.device-readout-tablet {
+  top: 38%;
+  left: 37.8%;
+  width: 51.1%;
+  aspect-ratio: 1193 / 866;
+}
+
+.device-readout-mobile {
+  top: 46.7%;
+  left: 82.2%;
+  width: 17.8%;
+  aspect-ratio: 652 / 1215;
+}
+
+/*
+ * Two hover effects, as with the HUD tiles:
+ * 1. Over the whole readout, the devices come forward back to front, each after the
+ *    previous one, and recede front to back when the pointer leaves.
+ * 2. Over a single device, it lifts and grows slightly, but stays in its layer: the
+ *    devices in front of it still cover it. That is on the inner `shot`,
+ *    so it combines with (1) instead of replacing its transform.
+ */
+.device-readout-device {
+  position: absolute;
+  opacity: 0.75;
+  transform: translateY(4%) scale(0.96);
+  transition:
+    opacity 450ms cubic-bezier(0.4, 0, 0.2, 1) var(--device-exit-delay),
+    transform 450ms cubic-bezier(0.4, 0, 0.2, 1) var(--device-exit-delay);
+}
+
+.hover-reveal-scope:hover .device-readout-device {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 600ms cubic-bezier(0.22, 1, 0.36, 1) var(--device-enter-delay),
+    transform 600ms cubic-bezier(0.22, 1, 0.36, 1) var(--device-enter-delay);
+}
+
+.device-readout-shot {
+  position: absolute;
+  inset: 0;
+  filter: drop-shadow(
+    0 0.8em 1.2em color-mix(in srgb, var(--background-primary) 70%, transparent)
+  );
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.device-readout-device:hover .device-readout-shot {
+  transform: translateY(-3%) scale(1.05);
+}
+
+/* The legend, top right: a short accent rule over the title. */
+.device-readout-legend {
+  position: absolute;
+  top: 1.4em;
+  right: 1.4em;
+}
+
+.device-readout-rule {
+  display: block;
+  width: 2.5em;
+  height: 0.14em;
+  margin-bottom: 0.9em;
+  transform: scaleX(0.4);
+  transform-origin: left center;
+  transition: transform 450ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-reveal-scope:hover .device-readout-rule {
+  transform: none;
+  transition-duration: 600ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/*
+ * The title lights once the devices have come forward, and turns cyan with no delay
+ * while any single device is hovered.
+ */
+.device-readout-title {
+  max-width: 7em;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  transition: color 450ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-reveal-scope:hover .device-readout-title {
+  color: var(--text-secondary);
+  transition: color 600ms cubic-bezier(0.22, 1, 0.36, 1) 200ms;
+}
+
+.device-readout:has(.device-readout-device:hover) .device-readout-title {
+  color: var(--accent-primary);
+  transition-delay: 0ms;
+}
+
+/* Touch screens have no hover to wait for, so everything starts forward and lit. */
+@media (hover: none) {
+  .device-readout-device {
+    opacity: 1;
+    transform: none;
+  }
+
+  .device-readout-rule {
+    transform: none;
+  }
+
+  .device-readout-title {
+    color: var(--text-secondary);
+  }
+}
+
+/* In a card too narrow for both, the legend gives way to the devices. */
+@container device-readout (width < 10rem) {
+  .device-readout-legend {
+    display: none;
+  }
+}
+
+/**
+ * Code readout. Same approach as the other readouts: a size container, with one
+ * `em` unit taken from the box's shorter side.
+ *
+ * Measured off the reference card (434×214), where the tagline is 11px: that gives
+ * 1em = 5.1% of the short side. Token lengths are percentages of the code block,
+ * which takes 62% of the card's width, so the code scales with the card instead of
+ * running off it.
+ */
+.code-readout {
+  container: code-readout / size;
+}
+
+.code-readout-body {
+  position: relative;
+  font-size: clamp(0.5rem, 5.1cqmin, 2rem);
+  padding: 1.6em 1.6em 1.6em 2.5em;
+}
+
+/*
+ * Keeps the title and tagline clear of the corner tile: the gutter is the tile's
+ * width (5.1em) plus a gap, so long text wraps before it reaches the tile.
+ */
+.code-readout-header {
+  padding-right: 6.4em;
+}
+
+.code-readout-title {
+  font-size: 2.3em;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+
+.code-readout-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.6em;
+  margin-top: 0.6em;
+  line-height: 1.3;
+  letter-spacing: 0.2em;
+}
+
+.code-readout-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+}
+
+/* The corner tile: a HudTile, so it lights and grows like every other tile. */
+.code-readout-icon {
+  position: absolute;
+  top: 1.6em;
+  right: 1.6em;
+  width: 5.1em;
+}
+
+/*
+ * Lines that don't fit are hidden WHOLE, never cut through, using the same
+ * column-wrap trick as the capability list: a line that would overflow wraps into a
+ * second column, which sits outside the clipped box.
+ */
+.code-readout-lines {
+  display: flex;
+  flex: 1;
+  flex-flow: column wrap;
+  align-content: flex-start;
+  row-gap: 0.9em;
+  column-gap: 100%;
+  width: 62%;
+  min-height: 0;
+  margin-top: 2.2em;
+  overflow: hidden;
+}
+
+.code-readout-line {
+  display: flex;
+  align-items: center;
+  gap: 1.1em;
+  width: 100%;
+}
+
+.code-readout-bullet {
+  flex-shrink: 0;
+  width: 0.45em;
+  height: 0.45em;
+  border-radius: 9999px;
+}
+
+.code-readout-tokens {
+  display: flex;
+  flex: 1;
+  gap: 0.5em;
+  min-width: 0;
+}
+
+/*
+ * Each token is a grey bar that is always visible. A highlighted token also holds a
+ * colour fill, which is revealed with `clip-path` rather than `scaleX`, so its
+ * rounded ends keep their shape as it sweeps across. At rest the fills are clipped
+ * to nothing. Over the nearest `hover-reveal-scope` they fill left to right and line
+ * by line; on leave they drain in reverse, faster.
+ */
+.code-readout-token {
+  position: relative;
+  flex: 0 1 var(--token-length);
+  min-width: 0;
+  height: 0.45em;
+  border-radius: 9999px;
+}
+
+.code-readout-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  clip-path: inset(0 100% 0 0 round 9999px);
+  transition: clip-path 250ms cubic-bezier(0.4, 0, 0.2, 1)
+    calc(var(--token-exit-delay) * 0.5);
+}
+
+.hover-reveal-scope:hover .code-readout-fill {
+  clip-path: inset(0 0 0 0 round 9999px);
+  transition: clip-path 350ms cubic-bezier(0.22, 1, 0.36, 1)
+    var(--token-enter-delay);
+}
+
+@media (hover: none) {
+  .code-readout-fill {
+    clip-path: none;
+  }
+}
+
+/* Language and page dots, bottom right. */
+.code-readout-footer {
+  position: absolute;
+  right: 1.6em;
+  bottom: 1.6em;
+  display: flex;
+  align-items: center;
+  gap: 1.4em;
+  font-size: 0.9em;
+  letter-spacing: 0.25em;
+}
+
+.code-readout-dots {
+  display: flex;
+  gap: 0.75em;
+}
+
+.code-readout-dot {
+  width: 0.6em;
+  height: 0.6em;
+  border-radius: 9999px;
+}
+
+.code-readout-dot-active {
+  box-shadow: 0 0 0.7em var(--accent-glow);
+}
+
+/*
+ * Narrower cards shed detail from the edges in: first the footer (and the code
+ * takes the full width), then the corner tile.
+ */
+@container code-readout (width < 12rem) {
+  .code-readout-footer {
+    display: none;
+  }
+
+  .code-readout-lines {
+    width: 100%;
+  }
+}
+
+@container code-readout (width < 9rem) {
+  .code-readout-icon {
+    display: none;
+  }
+}
+
+/**
+ * Section header divider: a short lit bar between two faint lines, as an ornament
+ * under the title.
+ */
+.section-header-divider {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  max-width: 100%;
+}
+
+/* The side lines give way first on a narrow screen; the lit bar keeps its size. */
+.section-header-divider-line {
+  flex: 0 1 7rem;
+  min-width: 1.5rem;
+  height: 1px;
+  background: var(--border-accent);
+}
+
+.section-header-divider-bar {
+  width: 4.5rem;
+  height: 0.25rem;
+  border-radius: 9999px;
+  box-shadow: 0 0 0.75rem var(--accent-glow);
+}
+
+/**
+ * Service card: a frosted glass shell with a cyan edge and soft outer glow, plus
+ * two accents: a short lit segment on the left edge and a wedge in the top-right
+ * corner.
+ *
+ * Hover (anywhere on the card) lifts it, brightens the edge and glow, and extends
+ * the rule beside the number. The icon tile lights by itself, because it's a
+ * `HudTile` inside this card's `hover-reveal-scope`.
+ */
+.service-card {
+  /* So the tag row can size its text to the card's width (see below). */
+  container-type: inline-size;
+  position: relative;
+  border: 1px solid var(--border-accent);
+  border-radius: 1rem;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--surface-elevated) 55%, transparent),
+    color-mix(in srgb, var(--surface) 40%, transparent)
+  );
+  box-shadow:
+    0 0 1.5rem var(--glow-edge),
+    inset 0 0 2rem color-mix(in srgb, var(--accent-primary) 6%, transparent);
+  backdrop-filter: blur(24px);
+  transition:
+    transform 450ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 450ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 450ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.service-card:hover {
+  transform: translateY(-0.375rem);
+  border-color: color-mix(in srgb, var(--accent-primary) 70%, transparent);
+  box-shadow:
+    0 0 2.5rem var(--accent-glow),
+    inset 0 0 2.5rem color-mix(in srgb, var(--accent-primary) 10%, transparent);
+  transition-duration: 600ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Left-edge accent: a lit segment sitting ON the border, a fifth of the way down. */
+.service-card::before {
+  content: "";
+  position: absolute;
+  top: 20%;
+  left: -1px;
+  width: 3px;
+  height: 20%;
+  border-radius: 9999px;
+  background: var(--accent-primary);
+  box-shadow: 0 0 0.75rem var(--accent-glow);
+}
+
+/* Top-right corner wedge, set in from the rounded corner. */
+.service-card::after {
+  content: "";
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  background: var(--accent-primary);
+  clip-path: polygon(20% 0, 100% 0, 100% 80%);
+  filter: drop-shadow(0 0 0.35rem var(--accent-glow));
+}
+
+.service-card-index-rule {
+  width: 2.5rem;
+  height: 1px;
+  background: var(--border-accent);
+  transform-origin: left center;
+  transition: transform 450ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.service-card:hover .service-card-index-rule {
+  transform: scaleX(1.6);
+  transition-duration: 600ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/*
+ * Tags stay on ONE line. Their type size follows the card's width (`cqi`), so in
+ * the narrower four-column layout the chips shrink together instead of wrapping.
+ * It's capped at 0.75rem (the badges' normal size) and floored at 0.5625rem. The row
+ * also borrows 1rem of the card's side padding on each side for extra room.
+ */
+.service-card-tags {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 0.45em;
+  margin-inline: -1rem;
+  font-size: clamp(0.5625rem, 4.4cqi, 0.75rem);
+}
+
+/* `Badge size="fit"`: padding in em, so it scales with the text it's given. */
+.badge-fit {
+  padding: 0.35em 0.9em;
+}
+
+/**
+ * Glass card: the shared frosted shell for the contact section's details card and
+ * form, and the work-in-progress placeholder. A quiet cyan edge over a dark frosted fill. The edge brightens while the
+ * card is hovered, and more again while a field inside it has focus, so the card
+ * being typed into reads as the active one.
+ */
+.glass-card {
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 18%, transparent);
+  border-radius: 1rem;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--surface-elevated) 50%, transparent),
+    color-mix(in srgb, var(--surface) 35%, transparent)
+  );
+  box-shadow: 0 0 2rem color-mix(in srgb, var(--accent-primary) 5%, transparent);
+  backdrop-filter: blur(24px);
+  transition:
+    border-color 450ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 450ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: color-mix(in srgb, var(--accent-primary) 32%, transparent);
+  box-shadow: 0 0 2.5rem var(--glow-edge);
+}
+
+.glass-card:focus-within {
+  border-color: color-mix(in srgb, var(--accent-primary) 45%, transparent);
+  box-shadow: 0 0 3rem var(--glow-edge);
+}
+
+/* The plane in the form's corner drifts gently, as if waiting to be sent. */
+.contact-card-plane {
+  animation: contact-plane-drift 3.2s ease-in-out infinite;
+}
+
+@keyframes contact-plane-drift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(2px, -3px);
+  }
+}
+
+/**
+ * `Button variant="glow"`: a halo around the accent fill that swells on hover and
+ * tightens on press. Disabled (while sending) it drops the halo.
+ */
+.button-glow {
+  box-shadow:
+    0 0 1.25rem var(--accent-glow),
+    inset 0 1px 0 color-mix(in srgb, var(--text-primary) 35%, transparent);
+  transition:
+    background-color 150ms ease,
+    box-shadow 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 150ms ease;
+}
+
+.button-glow:hover {
+  box-shadow:
+    0 0 2.25rem var(--accent-glow),
+    0 0 0.5rem var(--accent-glow),
+    inset 0 1px 0 color-mix(in srgb, var(--text-primary) 45%, transparent);
+}
+
+.button-glow:active {
+  transform: translateY(1px) scale(0.995);
+  box-shadow: 0 0 0.75rem var(--accent-glow);
+}
+
+.button-glow:disabled {
+  box-shadow: none;
+}
+
+/* The send button's plane noses forward on hover, as if about to take off. */
+.contact-send-glyph {
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.contact-send:hover .contact-send-glyph {
+  transform: translate(3px, -3px);
+}
+
+/**
+ * `Select`'s menu: a glass panel under the trigger, in the contact cards' style. It
+ * drops open with a short fade and slide; the global reduced-motion rule
+ * collapses that to an instant appearance.
+ */
+.select-menu {
+  max-height: 16rem;
+  padding: 0.375rem;
+  overflow-y: auto;
+  border: 1px solid var(--border-accent);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--surface-elevated) 96%, transparent);
+  box-shadow:
+    0 1rem 2.5rem color-mix(in srgb, var(--background-primary) 70%, transparent),
+    0 0 1.5rem var(--glow-edge);
+  backdrop-filter: blur(24px);
+  transform-origin: top center;
+  animation: select-menu-open 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes select-menu-open {
+  from {
+    opacity: 0;
+    transform: translateY(-0.375rem) scaleY(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 1rem;
+  border-radius: 0.5rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+/* The highlighted option, by pointer or keyboard: one state for both. */
+.select-option-active {
+  background: var(--accent-soft);
+  color: var(--text-primary);
+}
+
+.select-option-selected {
+  color: var(--accent-primary);
+}
+
+/* The trigger's chevron turns over while the menu is open. */
+.select-chevron {
+  display: flex;
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.select-chevron-open {
+  transform: rotate(180deg);
+}
+
+/**
+ * `Tabs`: a glass pill bar with one travelling highlight (`.tabs-indicator`). The
+ * bar scrolls sideways on a screen too narrow for every tab; the highlight is
+ * positioned inside the scrolling content, so it scrolls with the tabs.
+ */
+.tabs-bar {
+  position: relative;
+  display: flex;
+  gap: 0.25rem;
+  max-width: 100%;
+  padding: 0.3rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 20%, transparent);
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  backdrop-filter: blur(16px);
+  scrollbar-width: none;
+}
+
+.tabs-tab {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  padding: 0 1.25rem;
+  border-radius: 9999px;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 250ms ease;
+}
+
+.tabs-tab:hover {
+  color: var(--text-primary);
+}
+
+.tabs-tab-selected {
+  color: var(--text-primary);
+}
+
+.tabs-tab:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/*
+ * The highlight. It moves in two steps (see `Tabs`): first a quick stretch across
+ * both tabs, slightly squeezed like a bubble being pulled, then a slower, springier
+ * close onto the new tab that releases the squeeze. Each state sets the transition
+ * it moves INTO the state with, which is how the two steps get different timings.
+ */
+/* Its box (left, top, width, height) is measured off the selected tab in `Tabs`. */
+.tabs-indicator {
+  position: absolute;
+  border: 1px solid var(--accent-primary);
+  border-radius: 9999px;
+  background: var(--accent-soft);
+  box-shadow: 0 0 1rem var(--glow-edge);
+  transition:
+    left 320ms cubic-bezier(0.34, 1.4, 0.64, 1),
+    top 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 320ms cubic-bezier(0.34, 1.4, 0.64, 1),
+    height 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 320ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/* 200ms here must match `STRETCH_MS` in `Tabs.tsx`. */
+.tabs-indicator-stretched {
+  transform: scaleY(0.86);
+  transition:
+    left 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    top 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    width 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    height 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/**
+ * `WorkInProgress`: the gear in its tile turns slowly and steadily, and an
+ * indeterminate progress bar sweeps its track on a loop. Both are stopped by the
+ * global reduced-motion rule.
+ */
+.wip-gear {
+  display: flex;
+  animation: wip-gear-turn 8s linear infinite;
+}
+
+@keyframes wip-gear-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.wip-progress {
+  position: relative;
+  display: block;
+  width: min(16rem, 100%);
+  height: 0.25rem;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: var(--border-strong);
+}
+
+.wip-progress-bar {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 35%;
+  border-radius: inherit;
+  box-shadow: 0 0 0.75rem var(--accent-glow);
+  animation: wip-progress-sweep 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes wip-progress-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(290%);
+  }
+}
+
+/* A tab's leading icon. */
+.tabs-tab-icon {
+  display: flex;
+  font-size: 1.2rem;
+}
+
+/*
+ * `Tabs variant="split"`: separate bordered buttons with gaps, and the travelling
+ * highlight drawn as a glowing outline around the selected one.
+ */
+/*
+ * One line, scrolling sideways where it doesn't fit. A scrolling box clips
+ * whatever spills past its padding, and the selected tab's glow spills about a
+ * rem, so the bar carries that much padding (pulled back out with an equal negative
+ * margin, so it takes up no more room). That's what keeps the glow from being
+ * sliced off at the edges.
+ */
+.tabs-bar-split {
+  gap: 0.75rem;
+  max-width: calc(100% + 2rem);
+  margin: -1rem;
+  padding: 1rem;
+  border: 0;
+  background: none;
+  backdrop-filter: none;
+}
+
+.tabs-tab-split {
+  min-height: 3.5rem;
+  padding: 0 1.75rem;
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 16%, transparent);
+  border-radius: 0.875rem;
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  font-size: 0.8125rem;
+}
+
+.tabs-bar-split .tabs-indicator {
+  border-color: var(--accent-primary);
+  border-radius: 0.875rem;
+  background: color-mix(in srgb, var(--accent-primary) 8%, transparent);
+  box-shadow:
+    0 0 1.5rem var(--accent-glow),
+    inset 0 0 1rem var(--glow-edge);
+}
+
+.tabs-bar-split .tabs-tab-selected .tabs-tab-icon {
+  color: var(--accent-primary);
+}
+
+/**
+ * Portfolio carousel.
+ *
+ * The stage's height is the centre card's: on `lg` the card is half the stage wide
+ * at 2.4:1, so the stage is 4.8:1; below `lg` the card is the full width at 4:3.
+ * Every card sits at the stage's centre and is moved into its role by
+ * `data-position`, so changing roles is a transition, not a re-render.
+ */
+.project-carousel-enter {
+  animation: project-carousel-enter 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes project-carousel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
+ * Phones and tablets: the centre card is 84% of the width at 4:3, and the
+ * neighbours sit flat beside it with only an edge peeking in (they're clipped at
+ * the stage's sides). That makes 84% × 3/4 = 63% of the width the stage's height.
+ */
+.project-carousel-stage {
+  --card-width: 84%;
+  --card-ratio: 4 / 3;
+  /* Puts each neighbour's inner edge about 6% inside the stage: a peek. */
+  --side-shift: 97%;
+  --side-scale: 0.9;
+  --side-turn: 0deg;
+  position: relative;
+  aspect-ratio: 100 / 63;
+  overflow-x: clip;
+  perspective: 1600px;
+}
+
+@media (min-width: 64rem) {
+  .project-carousel-stage {
+    --card-width: 50%;
+    --card-ratio: 12 / 5;
+    --side-shift: 66%;
+    --side-scale: 0.85;
+    --side-turn: 18deg;
+    aspect-ratio: 24 / 5;
+    overflow-x: visible;
+  }
+}
+
+/* `--card-offset` (slots from the centre) is set inline by `ProjectCard`. */
+.project-card {
+  --card-scale: 1;
+  --card-turn: 0deg;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--card-width);
+  aspect-ratio: var(--card-ratio);
+  overflow: hidden;
+  border: 1px solid var(--border-glass);
+  border-radius: 1rem;
+  background:
+    radial-gradient(
+      ellipse at 50% 35%,
+      color-mix(in srgb, var(--accent-primary) 14%, transparent),
+      transparent 70%
+    ),
+    var(--surface);
+  transform: translateX(-50%)
+    translateX(calc(var(--card-offset) * var(--side-shift)))
+    scale(var(--card-scale)) rotateY(var(--card-turn));
+  transition:
+    transform 650ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 500ms ease,
+    filter 500ms ease,
+    border-color 400ms ease,
+    box-shadow 400ms ease;
+}
+
+.project-card[data-position="center"] {
+  z-index: 2;
+  border-color: color-mix(in srgb, var(--accent-primary) 75%, transparent);
+  box-shadow:
+    0 0 2.5rem var(--accent-glow),
+    0 1.5rem 3rem color-mix(in srgb, var(--background-primary) 70%, transparent);
+}
+
+.project-card[data-position="prev"],
+.project-card[data-position="next"] {
+  z-index: 1;
+  --card-scale: var(--side-scale);
+  filter: brightness(0.55) saturate(0.8);
+  opacity: 0.9;
+}
+
+.project-card[data-position="prev"] {
+  --card-turn: var(--side-turn);
+}
+
+.project-card[data-position="next"] {
+  --card-turn: calc(var(--side-turn) * -1);
+}
+
+/*
+ * A card jumping more than one slot (wrapping round, or a far dot) would otherwise
+ * streak across the stage. It skips the slide and fades in where it lands.
+ */
+.project-card[data-teleport] {
+  transition: none;
+  animation: project-card-appear 450ms ease both;
+}
+
+@keyframes project-card-appear {
+  from {
+    opacity: 0;
+  }
+}
+
+.project-card[data-position="prev"]:hover,
+.project-card[data-position="next"]:hover {
+  filter: brightness(0.75) saturate(0.9);
+}
+
+/* Off-stage cards wait, invisible, just past the side they'll slide in from. */
+.project-card[data-position="hidden"] {
+  --card-scale: 0.7;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.project-card-art {
+  position: absolute;
+  inset: 0;
+}
+
+.project-card-image {
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Cut-out renders float inside the card instead of touching its edges. */
+.project-card-image-contain {
+  padding: 6%;
+}
+
+.project-card[data-position="center"]:hover .project-card-image {
+  transform: scale(1.04);
+}
+
+.project-card-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--background-primary) 92%, transparent) 0%,
+    color-mix(in srgb, var(--background-primary) 40%, transparent) 40%,
+    transparent 70%
+  );
+}
+
+.project-card-badge {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--accent-primary);
+  border-radius: 0.6rem;
+  background: color-mix(in srgb, var(--background-primary) 70%, transparent);
+  color: var(--accent-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  box-shadow: 0 0 1rem var(--glow-edge);
+  transition: opacity 400ms ease;
+}
+
+.project-card-body {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.5rem 1.75rem;
+}
+
+.project-card-title {
+  color: var(--text-primary);
+  font-size: clamp(1.125rem, 2.2vw, 1.75rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.project-card-tagline {
+  margin-top: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+.project-card-tags {
+  margin-top: 0.4rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.project-card-link {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1.25rem;
+  border: 1px solid var(--accent-primary);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--background-primary) 60%, transparent);
+  color: var(--accent-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition:
+    background-color 200ms ease,
+    box-shadow 200ms ease,
+    opacity 400ms ease;
+}
+
+.project-card-link:hover {
+  background: var(--accent-soft);
+  box-shadow: 0 0 1.25rem var(--accent-glow);
+}
+
+.project-card-link:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.project-card-link :where(svg) {
+  transition: transform 200ms ease;
+}
+
+.project-card-link:hover :where(svg) {
+  transform: translateX(3px);
+}
+
+/*
+ * What each role shows: the centre has the badge, tagline and link; the sides have
+ * the tags. Faded rather than removed, so the swap animates with the move.
+ */
+.project-card:not([data-position="center"]) .project-card-badge,
+.project-card:not([data-position="center"]) .project-card-tagline,
+.project-card:not([data-position="center"]) .project-card-link {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.project-card[data-position="center"] .project-card-tags {
+  display: none;
+}
+
+/* Side cards: the whole card is the button that brings it to the centre. */
+.project-card-select {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  border-radius: inherit;
+}
+
+.project-card-select:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: -2px;
+}
+
+/* Below `lg` the card is narrower, so its text stacks over the link. */
+@media (max-width: 63.999rem) {
+  .project-card-body {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+  }
+}
+
+/*
+ * The arrows and dots share one row under the stage, so on a phone the arrows
+ * never cover the card. On `lg` the arrows lift out of the row to sit beside the
+ * stage, vertically centred on it.
+ */
+.project-carousel {
+  position: relative;
+  container-type: inline-size;
+}
+
+.project-carousel-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-top: 1.75rem;
+}
+
+.project-carousel-arrow {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--accent-primary);
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--background-primary) 75%, transparent);
+  color: var(--accent-primary);
+  font-size: 1.125rem;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 1rem var(--glow-edge);
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 200ms ease;
+}
+
+.project-carousel-arrow:hover {
+  background: var(--accent-soft);
+  box-shadow: 0 0 1.5rem var(--accent-glow);
+}
+
+.project-carousel-arrow:active {
+  transform: scale(0.94);
+}
+
+.project-carousel-arrow:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 3px;
+}
+
+/*
+ * The stage is 5/24 of the carousel's width tall on `lg`, so its middle is 5/48 of
+ * the width down (`cqw` reads the carousel's own width).
+ */
+@media (min-width: 64rem) {
+  .project-carousel-nav {
+    margin-top: 2rem;
+  }
+
+  .project-carousel-arrow {
+    position: absolute;
+    top: calc(100cqw * 5 / 48);
+    width: 3.25rem;
+    height: 3.25rem;
+    font-size: 1.25rem;
+    transform: translateY(-50%);
+  }
+
+  .project-carousel-arrow:active {
+    transform: translateY(-50%) scale(0.94);
+  }
+
+  .project-carousel-arrow-prev {
+    left: 1rem;
+  }
+
+  .project-carousel-arrow-next {
+    right: 1rem;
+  }
+}
+
+.project-carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+/* A 24px hit area around each small dot, so it's easy to press (§9.6). */
+.project-carousel-dot {
+  position: relative;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--text-muted);
+  cursor: pointer;
+  transition:
+    width 400ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 300ms ease,
+    box-shadow 300ms ease;
+}
+
+.project-carousel-dot::before {
+  content: "";
+  position: absolute;
+  inset: -0.5rem;
+}
+
+.project-carousel-dot:hover {
+  background: var(--text-secondary);
+}
+
+.project-carousel-dot-active {
+  width: 4rem;
+  background: var(--accent-primary);
+  box-shadow: 0 0 0.75rem var(--accent-glow);
+}
+
+.project-carousel-dot:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 4px;
+}
+
+/**
+ * `CtaBanner`: a centred row, with circuit lines running out to either side at its
+ * middle and a short lit segment above it.
+ */
+.cta-banner {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding-block: 2rem;
+}
+
+.cta-banner::before,
+.cta-banner::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 18%;
+  height: 1px;
+  background: linear-gradient(
+    to var(--cta-line-direction),
+    var(--border-accent),
+    transparent
+  );
+}
+
+.cta-banner::before {
+  --cta-line-direction: left;
+  left: 0;
+}
+
+.cta-banner::after {
+  --cta-line-direction: right;
+  right: 0;
+}
+
+@media (max-width: 63.999rem) {
+  .cta-banner::before,
+  .cta-banner::after {
+    display: none;
+  }
+}
+
+.cta-banner-arrow {
+  display: flex;
+  transition: transform 200ms ease;
+}
+
+.cta-banner-action:hover .cta-banner-arrow {
+  transform: translateX(3px);
+}
+
+/*
+ * A strip with tabs hidden past an end fades out towards that end, which says
+ * "there's more this way" without a scrollbar.
+ */
+.tabs-bar-fade-start {
+  mask-image: linear-gradient(to right, transparent, #000 3rem);
+}
+
+.tabs-bar-fade-end {
+  mask-image: linear-gradient(to left, transparent, #000 3rem);
+}
+
+.tabs-bar-fade-start.tabs-bar-fade-end {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 3rem,
+    #000 calc(100% - 3rem),
+    transparent
+  );
+}
+
+/* Phones: smaller tabs, so more of the strip shows at once. */
+@media (max-width: 39.999rem) {
+  .tabs-tab {
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    font-size: 0.6875rem;
+  }
+
+  .tabs-bar-split {
+    gap: 0.5rem;
+  }
+
+  .tabs-tab-split {
+    min-height: 3rem;
+    padding: 0 1.1rem;
+    gap: 0.5rem;
+    font-size: 0.6875rem;
+  }
+
+  .tabs-tab-icon {
+    font-size: 1rem;
+  }
+}

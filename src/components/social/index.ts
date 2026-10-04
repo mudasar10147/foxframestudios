@@ -1,2 +1,0 @@
-export { SocialIcon } from "./SocialIcon";
-export { SocialLinks } from "./SocialLinks";

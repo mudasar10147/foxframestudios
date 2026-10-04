@@ -1,10 +1,52 @@
 @import "./colors.css";
-@import "./typography.css";
-@import "./spacing.css";
-@import "./radius.css";
-@import "./shadows.css";
-@import "./blur.css";
-@import "./motion.css";
-@import "./z-index.css";
-@import "./containers.css";
-@import "./breakpoints.css";
+
+:root {
+  /* How far each side edge leans inward between the top and bottom of a panel. */
+  --chamfer: 1.75rem;
+
+  /* The header deliberately stops short of the viewport edges. */
+  --header-width: 90%;
+
+  /* Width of a full-section panel. Tracks the header so section boxes line up with
+     the bar above them; set a literal width here to break that alignment. */
+  --section-width: var(--header-width);
+
+  /* How far the section panel's light falls past its edges. Both offsets are
+     positive, which is what throws the light down and to the right. Keep the blur
+     at or below twice the offsets: past that it reaches back over the top and left
+     edges, and `drop-shadow` has no spread to pull it in again. */
+  --section-glow-x: 16px;
+  --section-glow-y: 16px;
+  --section-glow-blur: 32px;
+
+  /* How much of the section box the corner grid patch covers, in each direction.
+     A share rather than a length, so the patch keeps its proportion as the box
+     resizes instead of shrinking away on a wide screen. */
+  --grid-corner-size: 30%;
+
+  /* The width a service frame settles at. Frames are fluid below this and the row
+     centres above it, so they keep a poster proportion instead of growing with the
+     section box — at 2560 the uncapped row gave a 435px-wide frame, which reads as
+     a banner rather than a card. 20rem also lands close to the 286px the four-up
+     row ran at before the box widened. */
+  --service-card-max: 20rem;
+
+  /* Gutter between frames: about a tenth of a frame's width. Enough to separate
+     them without breaking the row into four unrelated objects. */
+  --service-gap: 2rem;
+
+  /* How far a node box's outline blooms past its edge. Shared by every box on a
+     wired row, so the workflow's stages and the contact stations stay lit alike. */
+  --node-box-glow: 16px;
+
+  /* How tall a workflow stage stands. A floor rather than a fixed height: a stage
+     whose name wraps to two lines sets the height and the row levels the rest up
+     to it, so this only has to cover the single-line case. */
+  --workflow-step-height: 4.5rem;
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --chamfer: 2.5rem;
+  }
+}
