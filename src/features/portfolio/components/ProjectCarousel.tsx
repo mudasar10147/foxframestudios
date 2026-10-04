@@ -23,6 +23,7 @@ function offsetOf(index: number, current: number, count: number) {
   return Math.max(-2, Math.min(2, offset));
 }
 
+
 /**
  * The portfolio's carousel: one large centre card with the neighbours on either
  * side, tilted and dimmed, arrows to step through, and dots to jump.
