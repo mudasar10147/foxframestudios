@@ -2871,3 +2871,183 @@
     font-size: 1rem;
   }
 }
+
+/**
+ * Footer layout, in three steps.
+ *
+ * - Phones: brand, then quick links, then connect, stacked.
+ * - Tablets (48–64rem): the brand across the top, quick links and connect side by
+ *   side below it. Three columns don't leave connect room for its button here.
+ * - 64rem and up: all three side by side, the brand widest.
+ *
+ * A thin divider runs down the left of each column that has a neighbour beside it.
+ */
+.footer-grid {
+  display: grid;
+  gap: 2.75rem;
+}
+
+@media (min-width: 48rem) {
+  .footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.75rem 0;
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+
+  .footer-column + .footer-column {
+    padding-left: 2.5rem;
+    border-left: 1px solid var(--border-default);
+  }
+}
+
+@media (min-width: 64rem) {
+  .footer-grid {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: 0;
+  }
+
+  .footer-brand {
+    grid-column: auto;
+    padding-right: 2.5rem;
+  }
+
+  .footer-column {
+    padding-left: 2.5rem;
+    border-left: 1px solid var(--border-default);
+  }
+}
+
+/* Links brighten and edge right on hover, as if being pointed at. */
+.footer-link {
+  display: inline-flex;
+  color: var(--text-secondary);
+  transition:
+    color 200ms ease,
+    transform 200ms ease;
+}
+
+.footer-link:hover {
+  color: var(--text-primary);
+  transform: translateX(3px);
+}
+
+.footer-link:focus-visible {
+  border-radius: 0.25rem;
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 3px;
+}
+
+/*
+ * Set here rather than as utilities on the button: the base button's own
+ * `font-medium tracking-tight` would otherwise win the tie.
+ */
+.footer-cta {
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  box-shadow: 0 0 1.25rem var(--glow-edge);
+}
+
+.footer-cta:hover {
+  box-shadow: 0 0 1.75rem var(--accent-glow);
+}
+
+.footer-cta-arrow {
+  transition: transform 200ms ease;
+}
+
+.footer-cta:hover .footer-cta-arrow {
+  transform: translateX(3px);
+}
+
+/*
+ * The frame rail: a kink at each end and a run between them. The straight parts
+ * are a quiet accent line; the bends are lit, with a faint glow.
+ */
+.footer-rail {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  height: 24px;
+}
+
+.footer-rail-bottom {
+  transform: scaleY(-1);
+}
+
+.footer-rail-kink {
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.footer-rail-run {
+  flex: 1;
+  height: 1px;
+  background: var(--border-accent);
+}
+
+.footer-rail-edge {
+  stroke: var(--border-accent);
+  stroke-width: 1;
+}
+
+.footer-rail-bend {
+  stroke: var(--accent-primary);
+  stroke-width: 1.5;
+  filter: drop-shadow(0 0 3px var(--accent-glow));
+}
+
+/* Bottom bar: stacked and centred on phones; copyright left, slogan right from 48rem. */
+.footer-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  padding-block: 1.75rem 2.25rem;
+  text-align: center;
+}
+
+@media (min-width: 48rem) {
+  .footer-bottom {
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: left;
+  }
+}
+
+/* The slogan and its slashes stay together; tighter spacing on a phone. */
+.footer-slogan {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  letter-spacing: 0.18em;
+}
+
+@media (min-width: 40rem) {
+  .footer-slogan {
+    gap: 1rem;
+    letter-spacing: 0.3em;
+  }
+}
+
+/* The three slanted bars before the slogan. */
+.footer-slashes {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 0.2rem;
+}
+
+.footer-slashes > span {
+  width: 0.2rem;
+  height: 1.1rem;
+  border-radius: 1px;
+  background: linear-gradient(
+    to bottom,
+    var(--accent-primary),
+    var(--accent-deep)
+  );
+  transform: skewX(-25deg);
+}

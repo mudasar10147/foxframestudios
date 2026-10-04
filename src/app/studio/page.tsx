@@ -13,7 +13,7 @@ export default function StudioPage() {
   return (
     <Container className="py-20">
       <PageHeader
-        eyebrow="Inside FoxFrame"
+        eyebrow="Inside FlayerX"
         title="Studio"
         description="How the studio runs: process, tooling, and the people behind the work."
       />

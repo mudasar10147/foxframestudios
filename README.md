@@ -1,4 +1,4 @@
-# FoxFrame Studio
+# FlayerX Studio
 
 Next.js 15 (App Router) base, deployed on Vercel. The design layer has been
 cleared out for a rebuild — what remains is the build/deploy setup and the

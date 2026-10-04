@@ -3,20 +3,27 @@
  * Nav labels/hrefs are changed here only — never hardcoded in a component.
  */
 export const siteConfig = {
-  name: "FoxFrame Studio",
+  name: "FlayerX Studio",
   /** Rendered as two stacked lines in the logo lockup. */
   wordmark: { primary: "FLAYERX", secondary: "STUDIO" },
   availability: "Available",
   /** One line on what the studio does. Used by the footer. */
   tagline: "Interface design, scripting, and 3D production for game studios.",
+  /** Footer lines: the pitch under the logo, its motto, and the bottom bar's line. */
+  footer: {
+    pitch: "We build interactive game experiences.",
+    motto: ["Play", "Create", "Together"],
+    slogan: "Games for a brighter tomorrow",
+  },
   /**
-   * Who the copyright notice names.
+   * The studio's community server.
    *
-   * TODO: replace "localhost" with the registered studio name once it is decided —
-   * it is a placeholder standing in for a real rights holder, and it is the one
-   * thing in the footer a visitor could take literally.
+   * TODO: this points at Discord's home page as a placeholder. Replace it with the
+   * studio's own invite link before launch.
    */
-  rightsHolder: "localhost",
+  social: {
+    discord: "https://discord.com",
+  },
   /**
    * Shown in the contact section's details card.
    *
