@@ -25,7 +25,7 @@ async function notifyByEmail({
     const { error } = await resend.emails.send({
       // TODO: replace onboarding@resend.dev with an address on the studio's own
       // domain once it's verified in Resend; the shared sender is rate-limited.
-      from: "FlayerX Studio <onboarding@resend.dev>",
+      from: "FlareX Studio <onboarding@resend.dev>",
       to,
       replyTo: email,
       subject: `New enquiry from ${name}`,

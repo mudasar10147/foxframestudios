@@ -9,7 +9,7 @@ import { z } from "zod";
  * `ADMIN_SESSION_SECRET`, none of which may ever reach the browser (§17).
  */
 
-export const SESSION_COOKIE = "flayerx_admin_session";
+export const SESSION_COOKIE = "flarex_admin_session";
 
 /** How long a sign-in lasts before the admin has to sign in again. */
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;

@@ -1281,7 +1281,7 @@ Vague TODOs are FORBIDDEN.
 
 ```ts
 // ❌ // TODO fix later
-// ✅ // TODO: replace onboarding@resend.dev once FlayerX.studio DNS is verified — blocks custom reply-to.
+// ✅ // TODO: replace onboarding@resend.dev once FlareX.studio DNS is verified — blocks custom reply-to.
 ```
 
 A TODO MUST be specific enough for another engineer to act on without context.

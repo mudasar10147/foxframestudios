@@ -158,7 +158,7 @@ export function Footer() {
         <FooterRail edge="bottom" />
         <Container className="footer-bottom">
           <p className="text-text-secondary text-sm">
-            © {year} {siteConfig.name.toUpperCase()}. All rights reserved.
+            © {year} {siteConfig.name}. All rights reserved.
           </p>
 
           <p className="footer-slogan text-text-secondary text-xs uppercase">

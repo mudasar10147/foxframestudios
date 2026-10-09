@@ -29,7 +29,7 @@ const statusStyles: Record<
 };
 
 /** The subject line a reply opens with. */
-const REPLY_SUBJECT = "Re: your enquiry to FlayerX Studio";
+const REPLY_SUBJECT = "Re: your enquiry to FlareX Studio";
 
 export interface MessageCardProps {
   message: ContactMessage;

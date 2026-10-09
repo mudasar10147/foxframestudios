@@ -5,9 +5,9 @@ import { ROUTES } from "@/constants/routes";
  * Nav labels/hrefs are changed here only — never hardcoded in a component.
  */
 export const siteConfig = {
-  name: "FlayerX Studio",
+  name: "FlareX Studio",
   /** Rendered as two stacked lines in the logo lockup. */
-  wordmark: { primary: "FLAYERX", secondary: "STUDIO" },
+  wordmark: { primary: "FlareX", secondary: "STUDIO" },
   availability: "Available",
   /** One line on what the studio does. Used by the footer. */
   tagline:
