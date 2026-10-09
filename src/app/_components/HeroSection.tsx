@@ -19,18 +19,19 @@ export function HeroSection() {
         <div>
           <Rise>
             <h1 className="text-5xl leading-none font-extrabold tracking-tight uppercase sm:text-6xl lg:text-7xl">
-              Architects
+              Building
               <br />
-              of <span className="text-accent-primary">Virtual</span>
+              <span className="text-accent-primary">Games</span>
               <br />
-              <span className="text-accent-primary">Reality</span>
+              Worth
+              <br />
+              <span className="text-accent-primary">Playing</span>
             </h1>
           </Rise>
 
           <Rise delay={90} className="mt-7">
             <p className="text-text-secondary max-w-md text-base text-pretty sm:text-lg">
-              Crafting immersive interfaces, systems, and assets for next-gen
-              worlds.
+              {siteConfig.tagline}
             </p>
           </Rise>
 
