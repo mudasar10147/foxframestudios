@@ -3,6 +3,7 @@
 import Image from "next/image";
 import type { KeyboardEvent } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { LoopVideo } from "@/components/ui/LoopVideo";
 import { Modal } from "@/components/ui/Modal";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,8 @@ export interface LightboxItem {
   description?: string;
   /** Pads the image inside the frame, for cut-out art on transparency. */
   inset?: boolean;
+  /** A looping clip to play instead of the image, which then serves as its poster. */
+  video?: string;
 }
 
 /**
@@ -81,19 +84,29 @@ export function ImageLightbox({
         // Arrow keys work from anywhere in the lightbox, not just on the arrows.
         <div className="lightbox-body" onKeyDown={handleKeyDown}>
           <div className="lightbox-frame">
-            <Image
-              // Keyed by item so a step swaps the image instead of morphing it.
-              key={item.id}
-              src={item.src}
-              alt={item.alt}
-              fill
-              sizes="(min-width: 1280px) 1200px, 100vw"
-              quality={LIGHTBOX_QUALITY}
-              className={cn(
-                "lightbox-image object-contain",
-                item.inset && "lightbox-image-inset",
-              )}
-            />
+            {item.video ? (
+              <LoopVideo
+                key={item.id}
+                src={item.video}
+                poster={item.src}
+                label={item.alt}
+                className="lightbox-image object-contain"
+              />
+            ) : (
+              <Image
+                // Keyed by item so a step swaps the image instead of morphing it.
+                key={item.id}
+                src={item.src}
+                alt={item.alt}
+                fill
+                sizes="(min-width: 1280px) 1200px, 100vw"
+                quality={LIGHTBOX_QUALITY}
+                className={cn(
+                  "lightbox-image object-contain",
+                  item.inset && "lightbox-image-inset",
+                )}
+              />
+            )}
           </div>
 
           <div className="lightbox-info">

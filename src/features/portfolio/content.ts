@@ -2,40 +2,14 @@ import { GAMES, gameHref } from "./games";
 import type { PortfolioCategory, ProjectImage } from "./types";
 
 /**
- * STAND-IN ART. Where a project has no real screenshot yet, it borrows
- * one of the hero or device renders. Each is a cut-out on transparency, hence
- * `fit: "contain"`.
- *
- * The UI/UX projects already have their real screens, in `public/work/ui/`.
- *
- * The Full Game projects come from `games.ts`, with their own art and pages.
- *
- * TODO: replace the Scripting projects' `image` with their real key art (e.g. in
- * `public/work/`) and drop the `fit` so it fills the card. Until then, they share
- * the hero renders.
+ * What a game's card shows before it has any screenshots: one of the hero renders,
+ * a cut-out on transparency, hence `fit: "contain"`.
  */
-const ART = {
-  character: {
-    src: "/hero/character-hud.webp",
-    alt: "An armoured character in front of a holographic interface",
-    fit: "contain",
-  },
-  outpost: {
-    src: "/hero/command-outpost.webp",
-    alt: "A modular sci-fi command outpost lit in cyan",
-    fit: "contain",
-  },
-  scripting: {
-    src: "/hero/gameplay-scripting.webp",
-    alt: "A laptop running a gameplay script in a game engine editor",
-    fit: "contain",
-  },
-  portal: {
-    src: "/hero/portal-vfx.webp",
-    alt: "A glowing ring of energy, open at its centre",
-    fit: "contain",
-  },
-} satisfies Record<string, ProjectImage>;
+const FALLBACK_ART: ProjectImage = {
+  src: "/hero/command-outpost.webp",
+  alt: "A modular sci-fi command outpost lit in cyan",
+  fit: "contain",
+};
 
 /**
  * The portfolio's tabs, in order, and the projects in each. The first project in a
@@ -54,7 +28,7 @@ export const PORTFOLIO_CATEGORIES: readonly PortfolioCategory[] = [
       tags: game.tags,
       image: game.images[0]
         ? { src: game.images[0].src, alt: game.images[0].alt }
-        : ART.outpost,
+        : FALLBACK_ART,
       description: game.summary,
       href: gameHref(game.slug),
       featured: index === 0,
@@ -170,29 +144,124 @@ export const PORTFOLIO_CATEGORIES: readonly PortfolioCategory[] = [
     icon: "code",
     projects: [
       {
-        id: "combat-framework",
-        title: "Combat Framework",
-        tagline: ["Hit", "Combo", "React"],
-        tags: ["Combat", "Netcode", "Modular"],
-        image: ART.scripting,
-        placeholder: true,
+        id: "auto-climb",
+        title: "Auto Climb System",
+        tagline: ["Climb", "Dive", "Repeat"],
+        tags: ["Automation", "Game Loop", "Roblox"],
+        image: {
+          src: "/work/scripting/auto-climb-poster.webp",
+          alt: "A Roblox character climbing a glowing tower in Climb and Dive For Coins, with the height meter rising",
+        },
+        clip: "/work/scripting/auto-climb.mp4",
+        description:
+          "One tap runs the whole loop in Climb and Dive For Coins: the character walks to the tower, climbs it, dives back down through the coins and starts again, with the height meter and coin count updating live.",
         featured: true,
       },
       {
-        id: "quest-engine",
-        title: "Quest Engine",
-        tagline: ["Track", "Branch", "Reward"],
-        tags: ["Quests", "Dialogue", "Saves"],
-        image: ART.character,
-        placeholder: true,
+        id: "coin-economy",
+        title: "Coin Economy System",
+        tagline: ["Earn", "Spend", "Upgrade"],
+        tags: ["Economy", "Shop", "Upgrades"],
+        image: {
+          src: "/work/scripting/coin-economy-poster.webp",
+          alt: "The Fins shop in Climb and Dive For Coins, with a fin on sale for 5K coins and the locked fins after it",
+        },
+        clip: "/work/scripting/coin-economy.mp4",
+        description:
+          "The coin economy behind Climb and Dive For Coins: coins earned from dives buy fins in the shop. Each fin costs more and gives a bigger boost than the last, buying one unlocks the next and equips it straight away, and the coin balance updates as it's spent.",
       },
       {
-        id: "economy-system",
-        title: "Economy System",
-        tagline: ["Earn", "Spend", "Balance"],
-        tags: ["Currency", "Shops", "Analytics"],
-        image: ART.outpost,
-        placeholder: true,
+        id: "ticket-generator",
+        title: "Generate & Collect System",
+        tagline: ["Generate", "Store", "Collect"],
+        tags: ["Idle", "Economy", "Rewards"],
+        image: {
+          src: "/work/scripting/ticket-generator-poster.webp",
+          alt: "A player stepping on a Collect pad beside a Ticket Agent, banking stored tickets in a burst of green sparkles",
+        },
+        clip: "/work/scripting/ticket-generator.mp4",
+        description:
+          "An idle income loop: the Ticket Agent generates tickets every second at a rate set by its level, 297.7 a second at level 19, and stores them. Stepping on the Collect pad banks the total with a burst of effects and starts the count again from zero.",
+      },
+      {
+        id: "daily-rewards",
+        title: "Daily Rewards System",
+        tagline: ["Claim", "Return", "Reward"],
+        tags: ["Retention", "Rewards", "Timers"],
+        image: {
+          src: "/work/scripting/daily-rewards-poster.webp",
+          alt: "The Daily Rewards panel in Climb and Dive For Coins, with coins bursting across the screen after a claim",
+        },
+        clip: "/work/scripting/daily-rewards.mp4",
+        description:
+          "A weekly reward track in Climb and Dive For Coins: one claim a day, from coins, spins and gems up to an exclusive pet on the last day. Claiming pays out with a burst of coins, marks the day as claimed and starts a live countdown to the next; the track resets every week.",
+      },
+      {
+        id: "playtime-gifts",
+        title: "Playtime Gifts System",
+        tagline: ["Play", "Unlock", "Claim"],
+        tags: ["Playtime", "Gifts", "Countdowns"],
+        image: {
+          src: "/work/scripting/playtime-gifts-poster.webp",
+          alt: "The Free Gifts panel in Climb and Dive For Coins, a grid of twelve rewards, with coins bursting out after a claim",
+        },
+        clip: "/work/scripting/playtime-gifts.mp4",
+        description:
+          "Free gifts for time spent playing Climb and Dive For Coins: a grid of twelve rewards, from coins and boosts to pets, each unlocking a little later than the last. The HUD shows when a gift is ready; claiming it pays out with a burst of coins and starts the countdown to the next.",
+      },
+      {
+        id: "leaderboards",
+        title: "Leaderboard System",
+        tagline: ["Rank", "Compete", "Climb"],
+        tags: ["Leaderboards", "Social", "Donations"],
+        image: {
+          src: "/work/scripting/leaderboards-poster.webp",
+          alt: "A player standing in front of the lobby's streak and coins leaderboards in Climb and Dive For Coins",
+        },
+        clip: "/work/scripting/leaderboards.mp4",
+        description:
+          "In-world leaderboards for Climb and Dive For Coins: boards in the lobby rank the top players by streak, wins, coins and donations, each with avatar, name and total. Beside them, a donation board lets players give Robux and climb its ranking, with the top donors called out.",
+      },
+      {
+        id: "depth-progress",
+        title: "Depth Progress System",
+        tagline: ["Dive", "Track", "Beat"],
+        tags: ["Progression", "HUD", "Real-time"],
+        image: {
+          src: "/work/scripting/depth-progress-poster.webp",
+          alt: "The depth meter in Climb and Dive For Coins, marked from 0 to 12 km, with the player's avatar beside it at 3,148 m",
+          // A tall clip of the meter alone: shown whole, not cropped to the card.
+          fit: "contain",
+        },
+        clip: "/work/scripting/depth-progress.mp4",
+        description:
+          "A live depth meter for Climb and Dive For Coins: as the player dives, their avatar slides up a 12 km gauge, with sea creatures marking the milestones, and a readout counts the depth in real time, from 0 m past 4,000 m.",
+      },
+      {
+        id: "spin-wheel",
+        title: "Spin Wheel System",
+        tagline: ["Spin", "Win", "Return"],
+        tags: ["Rewards", "Monetization", "Timers"],
+        image: {
+          src: "/work/scripting/spin-wheel-poster.webp",
+          alt: "The prize wheel in Climb and Dive For Coins, with coin, boost, extra-spin and pet slices, confetti, and buttons to spin or buy spin packs",
+        },
+        clip: "/work/scripting/spin-wheel.mp4",
+        description:
+          "A prize wheel for Climb and Dive For Coins: coins, boosts, extra spins and an exclusive pet, each slice with its own odds. Players earn a free spin on a daily timer, can buy spin packs with Robux, and every win pays out with confetti.",
+      },
+      {
+        id: "daily-quests",
+        title: "Daily Quests System",
+        tagline: ["Accept", "Progress", "Claim"],
+        tags: ["Quests", "Progression", "Daily Reset"],
+        image: {
+          src: "/work/scripting/daily-quests-poster.webp",
+          alt: "The Daily Quests panel in Climb and Dive For Coins, with progress bars for climbing 25,000 meters and hatching eggs",
+        },
+        clip: "/work/scripting/daily-quests.mp4",
+        description:
+          "Daily quests for Climb and Dive For Coins: goals like climbing 25,000 meters or hatching eggs, each with a progress bar and a reward. Progress builds up from normal play, so one climb in the clip moves the climbing goal from 2.25K to 3.14K, and the list resets every day.",
       },
     ],
   },

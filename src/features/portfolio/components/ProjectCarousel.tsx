@@ -37,6 +37,7 @@ function toLightboxItem(project: PortfolioProject): LightboxItem {
     meta: project.tags.join(" • "),
     description: project.description,
     inset: project.image.fit === "contain",
+    video: project.clip,
   };
 }
 

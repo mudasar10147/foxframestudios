@@ -8,6 +8,7 @@ import {
   type LightboxItem,
 } from "@/components/shared/ImageLightbox";
 import { Icon } from "@/components/ui/Icon";
+import { LoopVideo } from "@/components/ui/LoopVideo";
 import { cn } from "@/lib/utils";
 import type { PortfolioEntry } from "../entries";
 
@@ -24,6 +25,7 @@ function toLightboxItem(entry: PortfolioEntry): LightboxItem {
     meta: `${entry.categoryLabel} • ${entry.tags.join(" • ")}`,
     description: entry.description,
     inset: entry.image.fit === "contain",
+    video: entry.clip,
   };
 }
 
@@ -48,19 +50,32 @@ export function PortfolioGrid({ entries }: PortfolioGridProps) {
           <li key={entry.id}>
             <article className="portfolio-tile hover-reveal-scope">
               <div className="portfolio-tile-art">
-                <Image
-                  src={entry.image.src}
-                  alt={entry.image.alt}
-                  fill
-                  // One column below `md`, two to `xl`, then three in the 80rem container.
-                  sizes="(min-width: 1280px) 400px, (min-width: 768px) 50vw, 100vw"
-                  className={cn(
-                    "portfolio-tile-image",
-                    entry.image.fit === "contain"
-                      ? "portfolio-tile-image-contain object-contain"
-                      : "object-cover",
-                  )}
-                />
+                {entry.clip ? (
+                  <LoopVideo
+                    src={entry.clip}
+                    poster={entry.image.src}
+                    className={cn(
+                      "portfolio-tile-image",
+                      entry.image.fit === "contain"
+                        ? "object-contain"
+                        : "object-cover",
+                    )}
+                  />
+                ) : (
+                  <Image
+                    src={entry.image.src}
+                    alt={entry.image.alt}
+                    fill
+                    // One column below `md`, two to `xl`, then three in the 80rem container.
+                    sizes="(min-width: 1280px) 400px, (min-width: 768px) 50vw, 100vw"
+                    className={cn(
+                      "portfolio-tile-image",
+                      entry.image.fit === "contain"
+                        ? "portfolio-tile-image-contain object-contain"
+                        : "object-cover",
+                    )}
+                  />
+                )}
                 <span aria-hidden className="portfolio-tile-shade" />
                 <span className="portfolio-tile-category">
                   <Icon name={entry.categoryIcon} />

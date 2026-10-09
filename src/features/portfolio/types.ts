@@ -20,6 +20,12 @@ export interface PortfolioProject {
   /** Shown under the title on the side cards, e.g. Exploration / Quests / Systems. */
   tags: readonly string[];
   image: ProjectImage;
+  /**
+   * A short silent clip of the work in action (an MP4 in `public/`), for work best
+   * seen moving, like a scripted system. It plays on the card and in the preview;
+   * `image` is its poster, so make that a frame of the clip.
+   */
+  clip?: string;
   /** A sentence or two about the work, shown under the screen in the full-screen preview. */
   description?: string;
   /**
@@ -27,11 +33,6 @@ export interface PortfolioProject {
    * there; without one, the button is "View full screen" and opens the preview.
    */
   href?: string;
-  /**
-   * A stand-in, not real work: shown on the home page's carousel so the tab isn't
-   * empty, but left off the portfolio page, where clients look closely.
-   */
-  placeholder?: boolean;
   /** Adds the "Featured" badge. */
   featured?: boolean;
 }

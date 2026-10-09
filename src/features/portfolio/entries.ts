@@ -10,17 +10,15 @@ export interface PortfolioEntry extends PortfolioProject {
   categoryIcon: IconName;
 }
 
-/** Every real project, across all disciplines, in category order. Stand-ins are left out. */
+/** Every project, across all disciplines, in category order. */
 export function getPortfolioEntries(): PortfolioEntry[] {
   return PORTFOLIO_CATEGORIES.flatMap((category) =>
-    category.projects
-      .filter((project) => !project.placeholder)
-      .map((project) => ({
-        ...project,
-        categoryId: category.id,
-        categoryLabel: category.label,
-        categoryIcon: category.icon,
-      })),
+    category.projects.map((project) => ({
+      ...project,
+      categoryId: category.id,
+      categoryLabel: category.label,
+      categoryIcon: category.icon,
+    })),
   );
 }
 

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { LoopVideo } from "@/components/ui/LoopVideo";
 import { cn } from "@/lib/utils";
 import type { PortfolioProject } from "../types";
 
@@ -71,20 +72,31 @@ export function ProjectCard({
       className="project-card"
     >
       <div className="project-card-art">
-        <Image
-          src={image.src}
-          alt={image.alt}
-          fill
-          // The centre card is half the container at `lg` (at most ~640px once the
-          // container hits its 80rem cap) and 84% of the width below it.
-          sizes="(min-width: 1280px) 640px, (min-width: 1024px) 50vw, 84vw"
-          className={cn(
-            "project-card-image",
-            image.fit === "contain"
-              ? "project-card-image-contain object-contain"
-              : "object-cover",
-          )}
-        />
+        {project.clip ? (
+          <LoopVideo
+            src={project.clip}
+            poster={image.src}
+            className={cn(
+              "project-card-image",
+              image.fit === "contain" ? "object-contain" : "object-cover",
+            )}
+          />
+        ) : (
+          <Image
+            src={image.src}
+            alt={image.alt}
+            fill
+            // The centre card is half the container at `lg` (at most ~640px once the
+            // container hits its 80rem cap) and 84% of the width below it.
+            sizes="(min-width: 1280px) 640px, (min-width: 1024px) 50vw, 84vw"
+            className={cn(
+              "project-card-image",
+              image.fit === "contain"
+                ? "project-card-image-contain object-contain"
+                : "object-cover",
+            )}
+          />
+        )}
       </div>
 
       {/* Darkens the lower part of the art so the text over it stays readable. */}
