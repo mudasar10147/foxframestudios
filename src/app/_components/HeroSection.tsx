@@ -19,13 +19,13 @@ export function HeroSection() {
         <div>
           <Rise>
             <h1 className="text-5xl leading-none font-extrabold tracking-tight uppercase sm:text-6xl lg:text-7xl">
-              Building
+              From
               <br />
-              <span className="text-accent-primary">Games</span>
+              <span className="text-accent-primary">Idea</span>
               <br />
-              Worth
+              To
               <br />
-              <span className="text-accent-primary">Playing</span>
+              <span className="text-accent-primary">Launch</span>
             </h1>
           </Rise>
 
