@@ -12,7 +12,10 @@ export interface ProjectImage {
 }
 
 export interface PortfolioProject {
-  /** Stable key (§16). */
+  /**
+   * Stable key (§16). Unique across EVERY category, not just its own: the
+   * portfolio page lists all projects together, keyed and looked up by this.
+   */
   id: string;
   title: string;
   /** Three short words under the title on the featured card, e.g. Build / Defend / Survive. */

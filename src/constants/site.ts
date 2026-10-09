@@ -18,14 +18,9 @@ export const siteConfig = {
     motto: ["Play", "Create", "Together"],
     slogan: "Games for a brighter tomorrow",
   },
-  /**
-   * The studio's community server.
-   *
-   * TODO: this points at Discord's home page as a placeholder. Replace it with the
-   * studio's own invite link before launch.
-   */
+  /** The studio's community server. */
   social: {
-    discord: "https://discord.com",
+    discord: "https://discord.gg/TkGBYFgT9",
   },
   /**
    * Shown in the contact section's details card.

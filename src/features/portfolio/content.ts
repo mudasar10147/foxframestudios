@@ -184,7 +184,7 @@ export const PORTFOLIO_CATEGORIES: readonly PortfolioCategory[] = [
           "An idle income loop: the Ticket Agent generates tickets every second at a rate set by its level, 297.7 a second at level 19, and stores them. Stepping on the Collect pad banks the total with a burst of effects and starts the count again from zero.",
       },
       {
-        id: "daily-rewards",
+        id: "daily-rewards-system",
         title: "Daily Rewards System",
         tagline: ["Claim", "Return", "Reward"],
         tags: ["Retention", "Rewards", "Timers"],
@@ -262,6 +262,60 @@ export const PORTFOLIO_CATEGORIES: readonly PortfolioCategory[] = [
         clip: "/work/scripting/daily-quests.mp4",
         description:
           "Daily quests for Climb and Dive For Coins: goals like climbing 25,000 meters or hatching eggs, each with a progress bar and a reward. Progress builds up from normal play, so one climb in the clip moves the climbing goal from 2.25K to 3.14K, and the list resets every day.",
+      },
+      {
+        id: "pet-upgrades",
+        title: "Pet Upgrade System",
+        tagline: ["Select", "Roll", "Boost"],
+        tags: ["Upgrades", "Odds", "Gems"],
+        image: {
+          src: "/work/scripting/pet-upgrades-poster.webp",
+          alt: "The pet upgrade odds in Climb and Dive For Coins, listing speed, coin and luck boosts with their chances, beside gem packs",
+        },
+        clip: "/work/scripting/pet-upgrades.mp4",
+        description:
+          "Pet upgrades for Climb and Dive For Coins: pick a pet and roll it a random upgrade for a gem. A list shows every upgrade and its odds, from common 3% speed, coin and luck boosts at 17% to a rare 7% speed boost at 2%, with gem packs on sale beside it.",
+      },
+      {
+        id: "tutorial-guide",
+        title: "Tutorial Guide System",
+        tagline: ["Guide", "Teach", "Reward"],
+        tags: ["Onboarding", "Tutorial", "Rewards"],
+        image: {
+          src: "/work/scripting/tutorial-guide-poster.webp",
+          alt: "Step 15 of 17 of the in-game guide in Climb and Dive For Coins, with a Next button and coins raining down as a tutorial reward",
+          // A very wide clip: shown whole, not cropped to the card.
+          fit: "contain",
+        },
+        clip: "/work/scripting/tutorial-guide.mp4",
+        description:
+          "A step-by-step guide for new players in Climb and Dive For Coins: numbered steps with on-screen tips walk them through the game, finishing the tutorial pays out a shower of coins, and the last steps point to the rewards for liking, favouriting and joining the group.",
+      },
+      {
+        id: "treadmill",
+        title: "Treadmill System",
+        tagline: ["Run", "Count", "Progress"],
+        tags: ["Movement", "Counters", "Progression"],
+        image: {
+          src: "/work/scripting/treadmill-poster.webp",
+          alt: "A player running along a treadmill track through a Halloween farm, with +1 pop-ups and a step counter at 90",
+        },
+        clip: "/work/scripting/treadmill.mp4",
+        description:
+          "A treadmill track: every step the player runs adds one to their count, with a +1 popping up each time and the counter in the corner climbing as they go, from 55 to past 125 in the clip.",
+      },
+      {
+        id: "waves",
+        title: "Wave System",
+        tagline: ["Spawn", "Sweep", "Survive"],
+        tags: ["Hazards", "Spawning", "Difficulty"],
+        image: {
+          src: "/work/scripting/waves-poster.webp",
+          alt: "A blue wave sweeping down a long course toward the player, with speed tags reading Normal and Fast",
+        },
+        clip: "/work/scripting/waves.mp4",
+        description:
+          "Waves that sweep down the course one after another, each in its own colour, with tags showing how fast each one is coming: Slow, Normal or Fast. They keep spawning and rolling toward the player, so there's always another to watch for.",
       },
     ],
   },
