@@ -20,7 +20,7 @@ export type ProgressBarReveal = keyof typeof revealStyles;
 export interface ProgressBarProps {
   /** Percentage, 0–100. Values outside that range are clamped to it. */
   value: number;
-  /** Accessible name, e.g. "3D modeling level". The bar has no visible text of its own. */
+  /** Accessible name, e.g. "Scripting level". The bar has no visible text of its own. */
   label: string;
   /** When the fill shows its value. Defaults to `static`. */
   reveal?: ProgressBarReveal;

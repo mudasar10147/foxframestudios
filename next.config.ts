@@ -13,6 +13,22 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 30,
   },
   reactStrictMode: true,
+  /*
+   * The portfolio moved from /work to /portfolio. Old links and search results
+   * still land in the right place. Only page paths are matched: `/work` itself and
+   * single-segment slugs without a dot. The images live under `public/work/...`,
+   * which these patterns deliberately never match.
+   */
+  async redirects() {
+    return [
+      { source: "/work", destination: "/portfolio", permanent: true },
+      {
+        source: "/work/:slug([^/.]+)",
+        destination: "/portfolio/:slug",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

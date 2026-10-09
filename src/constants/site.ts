@@ -1,3 +1,5 @@
+import { ROUTES } from "@/constants/routes";
+
 /**
  * Single source of truth for site identity and primary navigation (AGENTS.md §14).
  * Nav labels/hrefs are changed here only — never hardcoded in a component.
@@ -8,7 +10,8 @@ export const siteConfig = {
   wordmark: { primary: "FLAYERX", secondary: "STUDIO" },
   availability: "Available",
   /** One line on what the studio does. Used by the footer. */
-  tagline: "Interface design, scripting, and 3D production for game studios.",
+  tagline:
+    "Full game development, UI/UX design and scripting for game studios.",
   /** Footer lines: the pitch under the logo, its motto, and the bottom bar's line. */
   footer: {
     pitch: "We build interactive game experiences.",
@@ -41,9 +44,8 @@ export interface NavItem {
 }
 
 export const navItems: readonly NavItem[] = [
-  { label: "Work", href: "/work" },
+  { label: "Portfolio", href: ROUTES.portfolio },
   { label: "Scripting", href: "/scripting" },
-  { label: "Modeling", href: "/modeling" },
   { label: "Studio", href: "/studio" },
   { label: "About", href: "/about" },
 ] as const;

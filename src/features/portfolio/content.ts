@@ -1,13 +1,18 @@
+import { GAMES, gameHref } from "./games";
 import type { PortfolioCategory, ProjectImage } from "./types";
 
 /**
- * STAND-IN ART. The repo has no portfolio screenshots yet, so every project borrows
+ * STAND-IN ART. Where a project has no real screenshot yet, it borrows
  * one of the hero or device renders. Each is a cut-out on transparency, hence
  * `fit: "contain"`.
  *
- * TODO: replace each project's `image` with its real key art (e.g. in
- * `public/work/`) and drop the `fit` so it fills the card. Until then, several
- * projects share the same picture.
+ * The UI/UX projects already have their real screens, in `public/work/ui/`.
+ *
+ * The Full Game projects come from `games.ts`, with their own art and pages.
+ *
+ * TODO: replace the Scripting projects' `image` with their real key art (e.g. in
+ * `public/work/`) and drop the `fit` so it fills the card. Until then, they share
+ * the hero renders.
  */
 const ART = {
   character: {
@@ -30,20 +35,7 @@ const ART = {
     alt: "A glowing ring of energy, open at its centre",
     fit: "contain",
   },
-  desktop: {
-    src: "/hero/devices/desktop.webp",
-    alt: "A game studio landing page on a desktop monitor",
-    fit: "contain",
-  },
-  tablet: {
-    src: "/hero/devices/tablet.webp",
-    alt: "A game studio landing page on a tablet",
-    fit: "contain",
-  },
 } satisfies Record<string, ProjectImage>;
-
-/** Every "View project" link, until each project has a page of its own. */
-const WORK_HREF = "/work";
 
 /**
  * The portfolio's tabs, in order, and the projects in each. The first project in a
@@ -51,44 +43,22 @@ const WORK_HREF = "/work";
  */
 export const PORTFOLIO_CATEGORIES: readonly PortfolioCategory[] = [
   {
-    id: "gameplay",
-    label: "Gameplay",
+    id: "full-game",
+    label: "Full Game",
     icon: "gamepad",
-    projects: [
-      {
-        id: "kingdom-defenders",
-        title: "Kingdom Defenders",
-        tagline: ["Build", "Defend", "Survive"],
-        tags: ["Strategy", "Waves", "Co-op"],
-        image: ART.outpost,
-        href: WORK_HREF,
-        featured: true,
-      },
-      {
-        id: "city-racers",
-        title: "City Racers",
-        tagline: ["Race", "Drift", "Win"],
-        tags: ["Vehicles", "Maps", "Multiplayer"],
-        image: ART.portal,
-        href: WORK_HREF,
-      },
-      {
-        id: "portal-rush",
-        title: "Portal Rush",
-        tagline: ["Jump", "Dodge", "Escape"],
-        tags: ["Platformer", "Physics", "Levels"],
-        image: ART.character,
-        href: WORK_HREF,
-      },
-      {
-        id: "adventure-world",
-        title: "Adventure World",
-        tagline: ["Explore", "Quest", "Discover"],
-        tags: ["Exploration", "Quests", "Systems"],
-        image: ART.scripting,
-        href: WORK_HREF,
-      },
-    ],
+    // Real games, each with its own page: the cards come from `GAMES`.
+    projects: GAMES.map((game, index) => ({
+      id: game.slug,
+      title: game.title,
+      tagline: game.tagline,
+      tags: game.tags,
+      image: game.images[0]
+        ? { src: game.images[0].src, alt: game.images[0].alt }
+        : ART.outpost,
+      description: game.summary,
+      href: gameHref(game.slug),
+      featured: index === 0,
+    })),
   },
   {
     id: "ui-ux",
@@ -96,29 +66,101 @@ export const PORTFOLIO_CATEGORIES: readonly PortfolioCategory[] = [
     icon: "monitor",
     projects: [
       {
-        id: "neon-hud-kit",
-        title: "Neon HUD Kit",
-        tagline: ["Clear", "Fast", "Readable"],
-        tags: ["HUD", "Menus", "Icons"],
-        image: ART.character,
-        href: WORK_HREF,
+        id: "abilities",
+        title: "Void Abilities",
+        tagline: ["Unlock", "Upgrade", "Unleash"],
+        tags: ["Skill Tree", "Mastery", "Anime"],
+        image: {
+          src: "/work/ui/abilities.webp",
+          alt: "An anime-style abilities menu with diamond skill slots and a Void Slash detail panel",
+        },
+        description:
+          "An abilities menu with a diamond skill layout, level badges, a detail panel for the selected skill and a mastery bar with upgrade points.",
         featured: true,
       },
       {
-        id: "studio-launcher",
-        title: "Studio Launcher",
-        tagline: ["Launch", "Browse", "Play"],
-        tags: ["Responsive", "Web", "Launcher"],
-        image: ART.desktop,
-        href: WORK_HREF,
+        id: "storm-inventory",
+        title: "Storm Inventory",
+        tagline: ["Collect", "Compare", "Equip"],
+        tags: ["Rarity", "Filters", "Stats"],
+        image: {
+          src: "/work/ui/storm-inventory.webp",
+          alt: "A green anime-style inventory with weapon categories, rarity cards and a Storm Katana stat panel",
+        },
+        description:
+          "An anime-style inventory with category tabs, search and sorting, star-rated rarity cards, and a stat panel to equip or discard.",
       },
       {
-        id: "companion-app",
-        title: "Companion App",
-        tagline: ["Track", "Trade", "Connect"],
-        tags: ["Tablet", "Inventory", "Social"],
-        image: ART.tablet,
-        href: WORK_HREF,
+        id: "character-index",
+        title: "Character Index",
+        tagline: ["Discover", "Collect", "Complete"],
+        tags: ["Collection", "Filters", "Rarity"],
+        image: {
+          src: "/work/ui/character-index.webp",
+          alt: "A purple index screen tracking discovered characters, with search, filters and a character detail panel",
+        },
+        description:
+          "A collection index that tracks discovered characters, with search, owned and missing filters, locked entries and a detail panel.",
+      },
+      {
+        id: "fallen-respawn",
+        title: "Fallen Screen",
+        tagline: ["Fall", "Wait", "Return"],
+        tags: ["Respawn", "Countdown", "Combat"],
+        image: {
+          src: "/work/ui/fallen-respawn.webp",
+          alt: "A comic-style respawn screen with a FALLEN banner, a countdown, and Return and Watch buttons",
+        },
+        description:
+          "A comic-style defeat screen with a bold FALLEN banner, a respawn countdown, and quick Return and Watch options.",
+      },
+      {
+        id: "daily-rewards",
+        title: "Daily Rewards",
+        tagline: ["Log In", "Claim", "Repeat"],
+        tags: ["Calendar", "Rewards", "Retention"],
+        image: {
+          src: "/work/ui/daily-rewards.webp",
+          alt: "An orange daily rewards calendar with seven reward days and a Claim Reward button",
+        },
+        description:
+          "A seven-day login calendar showing claimed days, today's reward, and a rainbow jackpot waiting on day seven.",
+      },
+      {
+        id: "quest-board",
+        title: "Quest Board",
+        tagline: ["Track", "Complete", "Claim"],
+        tags: ["Progress", "Rewards", "Daily"],
+        image: {
+          src: "/work/ui/quest-board.webp",
+          alt: "A red quests panel with four tasks, progress bars, rewards and Claim buttons",
+        },
+        description:
+          "A quest log with task icons, progress bars, reward previews and a claim button for each objective.",
+      },
+      {
+        id: "blocky-inventory",
+        title: "Blocky Inventory",
+        tagline: ["Pick", "Inspect", "Equip"],
+        tags: ["Grid", "Stats", "Casual"],
+        image: {
+          src: "/work/ui/blocky-inventory.webp",
+          alt: "A purple blocky inventory with an item grid, a Golden Shovel detail panel and an Equip button",
+        },
+        description:
+          "A playful blocky inventory with colour-coded item slots, a large item preview, stat bars and an equip button.",
+      },
+      {
+        id: "settings-panel",
+        title: "Settings Panel",
+        tagline: ["Toggle", "Tune", "Save"],
+        tags: ["Audio", "Graphics", "Casual"],
+        image: {
+          src: "/work/ui/settings-panel.webp",
+          alt: "A blue blocky settings panel with on/off toggles, a volume slider and a graphics quality selector",
+        },
+        description:
+          "A clear settings panel with on/off toggles, a volume slider and a graphics quality selector, built for quick changes.",
       },
     ],
   },
@@ -133,7 +175,7 @@ export const PORTFOLIO_CATEGORIES: readonly PortfolioCategory[] = [
         tagline: ["Hit", "Combo", "React"],
         tags: ["Combat", "Netcode", "Modular"],
         image: ART.scripting,
-        href: WORK_HREF,
+        placeholder: true,
         featured: true,
       },
       {
@@ -142,7 +184,7 @@ export const PORTFOLIO_CATEGORIES: readonly PortfolioCategory[] = [
         tagline: ["Track", "Branch", "Reward"],
         tags: ["Quests", "Dialogue", "Saves"],
         image: ART.character,
-        href: WORK_HREF,
+        placeholder: true,
       },
       {
         id: "economy-system",
@@ -150,71 +192,7 @@ export const PORTFOLIO_CATEGORIES: readonly PortfolioCategory[] = [
         tagline: ["Earn", "Spend", "Balance"],
         tags: ["Currency", "Shops", "Analytics"],
         image: ART.outpost,
-        href: WORK_HREF,
-      },
-    ],
-  },
-  {
-    id: "modeling",
-    label: "3D Modeling",
-    icon: "cube",
-    projects: [
-      {
-        id: "sci-fi-outpost",
-        title: "Sci-Fi Outpost",
-        tagline: ["Modular", "Detailed", "Optimized"],
-        tags: ["Hard-surface", "PBR", "Kit"],
-        image: ART.outpost,
-        href: WORK_HREF,
-        featured: true,
-      },
-      {
-        id: "armoured-operator",
-        title: "Armoured Operator",
-        tagline: ["Sculpt", "Rig", "Deploy"],
-        tags: ["Character", "Armour", "Rigged"],
-        image: ART.character,
-        href: WORK_HREF,
-      },
-      {
-        id: "energy-portal",
-        title: "Energy Portal",
-        tagline: ["Shape", "Light", "Animate"],
-        tags: ["Props", "Emissive", "Game-ready"],
-        image: ART.portal,
-        href: WORK_HREF,
-      },
-    ],
-  },
-  {
-    id: "visual-effects",
-    label: "Visual Effects",
-    icon: "sparkle",
-    projects: [
-      {
-        id: "rift-portal",
-        title: "Rift Portal",
-        tagline: ["Charge", "Open", "Erupt"],
-        tags: ["Particles", "Shaders", "Real-time"],
-        image: ART.portal,
-        href: WORK_HREF,
-        featured: true,
-      },
-      {
-        id: "energy-shield",
-        title: "Energy Shield",
-        tagline: ["Raise", "Absorb", "Shatter"],
-        tags: ["Combat", "Impact", "Glow"],
-        image: ART.character,
-        href: WORK_HREF,
-      },
-      {
-        id: "beacon-burst",
-        title: "Beacon Burst",
-        tagline: ["Signal", "Pulse", "Flare"],
-        tags: ["Ambient", "Lighting", "Bloom"],
-        image: ART.outpost,
-        href: WORK_HREF,
+        placeholder: true,
       },
     ],
   },

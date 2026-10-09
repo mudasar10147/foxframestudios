@@ -1,11 +1,19 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
+export type PageHeaderLevel = "h1" | "h2" | "h3";
+
 export interface PageHeaderProps {
   /** Small label above the title, e.g. a section or category name. */
   eyebrow?: string;
   title: string;
   description?: string;
+  /**
+   * The title's heading level. A page's own header is the `h1` (the default); use a
+   * lower level when the header introduces a featured block within a page, one
+   * below the section it sits in (§15).
+   */
+  as?: PageHeaderLevel;
   /** Primary calls to action rendered beneath the copy. */
   actions?: ReactNode;
   className?: string;
@@ -19,6 +27,7 @@ export function PageHeader({
   eyebrow,
   title,
   description,
+  as: Heading = "h1",
   actions,
   className,
 }: PageHeaderProps) {
@@ -30,9 +39,9 @@ export function PageHeader({
         </span>
       ) : null}
 
-      <h1 className="text-text-primary text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+      <Heading className="text-text-primary text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
         {title}
-      </h1>
+      </Heading>
 
       {description ? (
         <p className="text-text-secondary max-w-2xl text-base text-pretty">

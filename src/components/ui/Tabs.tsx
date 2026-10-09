@@ -40,6 +40,14 @@ export interface TabsProps<Value extends string = string> {
   align?: "start" | "center" | "end";
   /** Defaults to `segmented`. */
   variant?: TabsVariant;
+  /**
+   * Makes the panel itself a Tab stop. Leave on (the default) when the panel holds
+   * nothing focusable, so keyboard users can still reach it. Turn it off when it
+   * holds buttons or links: then the panel is just a container, and a focus stop on
+   * it is where focus lands on a click in Safari, and returns to (with its ring
+   * drawn) when a dialog opened from inside closes.
+   */
+  panelFocusable?: boolean;
   className?: string;
   /** The selected tab's content, rendered as its panel. */
   children: ReactNode;
@@ -117,6 +125,7 @@ export function Tabs<Value extends string>({
   onValueChange,
   align = "start",
   variant = "segmented",
+  panelFocusable = true,
   className,
   children,
 }: TabsProps<Value>) {
@@ -306,10 +315,13 @@ export function Tabs<Value extends string>({
         id={panelId}
         role="tabpanel"
         aria-labelledby={tabId(value)}
-        // Focusable, so a keyboard user can reach a panel that has nothing
-        // focusable inside it (§15).
-        tabIndex={0}
-        className="focus-visible:ring-accent-primary focus-visible:ring-offset-background-primary rounded-lg focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:outline-none"
+        // Focusable only when it holds nothing focusable itself, so a keyboard user
+        // can still reach it (§15). See `panelFocusable`.
+        tabIndex={panelFocusable ? 0 : undefined}
+        className={cn(
+          panelFocusable &&
+            "focus-visible:ring-accent-primary focus-visible:ring-offset-background-primary rounded-lg focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:outline-none",
+        )}
       >
         {children}
       </div>

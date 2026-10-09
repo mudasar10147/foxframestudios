@@ -20,6 +20,14 @@ interface Service {
 
 const SERVICES: readonly Service[] = [
   {
+    id: "full-game",
+    title: "Full Game Development",
+    icon: "gamepad",
+    description:
+      "Complete games built end to end, from first prototype to launch.",
+    tags: ["Prototype", "Production", "Launch"],
+  },
+  {
     id: "ui-ux",
     title: "UI/UX",
     icon: "layout",
@@ -32,20 +40,6 @@ const SERVICES: readonly Service[] = [
     icon: "code",
     description: "Scalable gameplay systems and clean code architecture.",
     tags: ["Lua", "TypeScript", "Systems"],
-  },
-  {
-    id: "modeling",
-    title: "Modeling",
-    icon: "cube",
-    description: "Optimized 3D assets for stylized and realistic projects.",
-    tags: ["Game-Ready", "Props", "Assets"],
-  },
-  {
-    id: "visual-effects",
-    title: "Visual Effects",
-    icon: "sparkle",
-    description: "Real-time VFX that add impact and polish to gameplay.",
-    tags: ["Real-Time", "Particles", "Shaders"],
   },
 ];
 

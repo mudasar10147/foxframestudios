@@ -53,43 +53,6 @@ const REPLY_NOTE = "We'll reply within two working days.";
 /** Shown when the failure came back with nothing we can repeat to the reader. */
 const FALLBACK_ERROR = "Could not send your message. Please try again.";
 
-/**
- * TEMPORARY: play the send through and report a delivery WITHOUT posting anything.
- *
- * The live endpoint currently comes back 500 because Resend rejects the send, so a
- * working form reports a failure — which is worse than useless while the section is
- * being shown. With this on, the dial spins for a full turn and then reads
- * Delivered; nothing is transmitted and no one is notified.
- *
- * TODO: set to false and delete `SPIN_MS` once the Resend sender domain is
- * verified. Every message submitted while this is true is silently discarded.
- */
-const SIMULATE_SEND = true;
-
-/**
- * TEMPORARY: let the dial send an EMPTY form, so the flight can be watched without
- * filling anything in first.
- *
- * Only meaningful alongside `SIMULATE_SEND`, and the code below leans on that: a
- * form that did not validate has no payload to post, so with the real endpoint back
- * on there is nothing for this to send and it falls through to the simulated path
- * regardless.
- *
- * Nothing about validation itself changed — the schema, the server's check, and the
- * marks on the fields are all untouched. This only decides whether the dial is
- * allowed to act on a form that has not passed it.
- *
- * TODO: set to false before this section goes anywhere near a visitor. With it on
- * the form cannot tell anyone what it still needs.
- */
-const SKIP_VALIDATION = true;
-
-/**
- * How long the simulated send runs for. It stands in for the request's own
- * duration, so the button shows "Sending…" for about as long as a real send takes.
- */
-const SPIN_MS = 1000;
-
 interface FieldSpec {
   name: FieldName;
   /** The accessible label. On screen the placeholder says the same thing. */
@@ -203,7 +166,7 @@ export function ContactForm({ className }: ContactFormProps) {
     // Enter in a text field would otherwise get past it (§13).
     if (busy) return;
 
-    if (!parsed.success && !SKIP_VALIDATION) {
+    if (!parsed.success) {
       setStatus({ state: "incomplete" });
 
       // Move to the first problem rather than leaving the reader to hunt for it.
@@ -215,14 +178,6 @@ export function ContactForm({ className }: ContactFormProps) {
     }
 
     setStatus({ state: "sending" });
-
-    // Reaching here without a valid form means `SKIP_VALIDATION` is on, and there
-    // is no payload to post.
-    if (SIMULATE_SEND || !parsed.success) {
-      await new Promise((resolve) => setTimeout(resolve, SPIN_MS));
-      markSent();
-      return;
-    }
 
     try {
       const response = await fetch("/api/contact", {

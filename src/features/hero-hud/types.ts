@@ -13,9 +13,9 @@ import type { UiKitReadoutProps } from "@/components/domain/UiKitReadout";
  * fails to compile until every card has content for it.
  */
 export type HeroSlideId =
-  | "character-hud"
-  | "command-outpost"
+  | "ui-game-menu"
   | "gameplay-scripting"
+  | "ui-inventory"
   | "portal-vfx";
 
 /**

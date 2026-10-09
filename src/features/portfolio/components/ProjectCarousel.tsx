@@ -1,6 +1,10 @@
 "use client";
 
 import { useState, type KeyboardEvent } from "react";
+import {
+  ImageLightbox,
+  type LightboxItem,
+} from "@/components/shared/ImageLightbox";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/utils";
 import type { PortfolioProject } from "../types";
@@ -23,6 +27,18 @@ function offsetOf(index: number, current: number, count: number) {
   return Math.max(-2, Math.min(2, offset));
 }
 
+/** A project as the full-screen preview shows it. */
+function toLightboxItem(project: PortfolioProject): LightboxItem {
+  return {
+    id: project.id,
+    src: project.image.src,
+    alt: project.image.alt,
+    title: project.title,
+    meta: project.tags.join(" • "),
+    description: project.description,
+    inset: project.image.fit === "contain",
+  };
+}
 
 /**
  * The portfolio's carousel: one large centre card with the neighbours on either
@@ -44,6 +60,8 @@ export function ProjectCarousel({ label, projects }: ProjectCarouselProps) {
   const { current, previous } = view;
   const count = projects.length;
   const active = projects[current];
+  // The project open in the full-screen preview, or null when it's closed.
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
   const go = (index: number) =>
     setView((state) => ({
@@ -84,6 +102,7 @@ export function ProjectCarousel({ label, projects }: ProjectCarouselProps) {
               teleport={Math.abs(offset - before) > 1}
               positionLabel={`${index + 1} of ${count}`}
               onFocusRequest={() => go(index)}
+              onOpen={() => setPreviewIndex(index)}
             />
           );
         })}
@@ -126,6 +145,18 @@ export function ProjectCarousel({ label, projects }: ProjectCarouselProps) {
           </button>
         </div>
       ) : null}
+
+      <ImageLightbox
+        items={projects.map(toLightboxItem)}
+        index={previewIndex}
+        onIndexChange={setPreviewIndex}
+        onClose={() => {
+          // Leave the carousel on whatever was being looked at in the preview.
+          if (previewIndex !== null && previewIndex !== current)
+            go(previewIndex);
+          setPreviewIndex(null);
+        }}
+      />
 
       <p aria-live="polite" className="sr-only">
         {`${active.title}, ${current + 1} of ${count}`}

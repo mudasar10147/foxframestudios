@@ -20,7 +20,7 @@ const WORKFLOW_TRACKS: readonly WorkflowTrack[] = [
       "Discovery",
       "Wireframing",
       "System Architecture",
-      "Asset & Modeling",
+      "Core Gameplay",
       "Scripting & QA",
       "Launch",
     ],
@@ -51,32 +51,6 @@ const WORKFLOW_TRACKS: readonly WorkflowTrack[] = [
       "Deployment",
     ],
   },
-  {
-    id: "modeling",
-    label: "Modeling",
-    caption: "Modeling Process",
-    stages: [
-      "Concept & Reference",
-      "Blockout",
-      "Sculpting",
-      "Retopology & UVs",
-      "Texturing",
-      "Engine Export",
-    ],
-  },
-  {
-    id: "visual-effects",
-    label: "Visual Effects",
-    caption: "VFX Process",
-    stages: [
-      "Concept",
-      "Look Development",
-      "Particle Systems",
-      "Shaders & Materials",
-      "Optimization",
-      "Integration",
-    ],
-  },
 ];
 
 export function WorkflowSection() {
@@ -101,7 +75,8 @@ export function WorkflowSection() {
         {/* Only the tabs and the row they switch are a client component — the
             heading and the background stay on the server (§10.1). */}
         <Rise trigger="in-view" delay={90} className="mt-10 lg:mt-12">
-          <WorkflowExplorer tracks={WORKFLOW_TRACKS} />
+          {/* UI/UX is the studio's lead service, so it's the tab that opens. */}
+          <WorkflowExplorer tracks={WORKFLOW_TRACKS} defaultId="ui-ux" />
         </Rise>
       </Container>
     </section>

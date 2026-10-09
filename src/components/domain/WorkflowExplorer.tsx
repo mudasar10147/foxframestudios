@@ -45,6 +45,8 @@ function cycleMs(stageCount: number) {
 
 export interface WorkflowExplorerProps {
   tracks: readonly WorkflowTrack[];
+  /** The tab selected when the page loads. Defaults to the first. */
+  defaultId?: string;
 }
 
 /**
@@ -55,8 +57,10 @@ export interface WorkflowExplorerProps {
  * entrance waits for the row to be in view, so the first track still plays when
  * it's scrolled to, and a track switched to on screen plays straight away.
  */
-export function WorkflowExplorer({ tracks }: WorkflowExplorerProps) {
-  const [selectedId, setSelectedId] = useState(tracks[0]?.id ?? "");
+export function WorkflowExplorer({ tracks, defaultId }: WorkflowExplorerProps) {
+  const [selectedId, setSelectedId] = useState(
+    defaultId ?? tracks[0]?.id ?? "",
+  );
   const track = tracks.find((item) => item.id === selectedId) ?? tracks[0];
 
   if (!track) return null;

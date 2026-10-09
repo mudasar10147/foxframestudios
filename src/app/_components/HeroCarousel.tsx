@@ -41,25 +41,27 @@ interface Slide {
  */
 const SLIDES: readonly Slide[] = [
   {
-    id: "character-hud",
-    src: "/hero/character-hud.webp",
-    alt: "An armoured character standing in front of a holographic interface panel",
-    // Subject is 769 of 1000 tall — the shortest of the four, so the largest push.
-    scale: 1.5,
-  },
-  {
-    id: "command-outpost",
-    src: "/hero/command-outpost.webp",
-    alt: "A modular sci-fi command outpost with a satellite dish, lit in cyan",
-    // 937 of 1000. The fullest render, and the one the rest are matched against.
-    scale: 1.2,
+    id: "ui-game-menu",
+    src: "/hero/ui-pumpkin-menu.webp",
+    alt: "A Grow a Pumpkin game menu with Home, Inventory and Shop tabs, a Play Now banner and coin, pumpkin and level stats",
+    // A wide 7:4 panel, so it fills the stage's WIDTH first (the square renders
+    // fill its height). At 1 it spans the stage edge to edge; raise to enlarge.
+    scale: 1,
   },
   {
     id: "gameplay-scripting",
     src: "/hero/gameplay-scripting.webp",
     alt: "A laptop running a gameplay controller script in a game engine editor",
-    // 766 of 1000, and wide with it, so it is held a little under the character.
+    // 766 of 1000, and wide with it, so it is scaled up to read as large as the
+    // UI panels either side of it.
     scale: 1.25,
+  },
+  {
+    id: "ui-inventory",
+    src: "/hero/ui-adventure-inventory.webp",
+    alt: "An Adventure Loadout inventory screen with the character's gear, an item grid and the selected sword's stats",
+    // Wide like the first slide's panel, so it is sized the same way.
+    scale: 1,
   },
   {
     id: "portal-vfx",
@@ -296,7 +298,10 @@ function HudLayer({
 const SLIDE_ART_SIZES =
   "(min-width: 1280px) 600px, (min-width: 1024px) 46vw, 90vw";
 
-/** The renders' intrinsic size. They're all square. */
+/**
+ * A nominal box for the preloaded renders. With `sizes` set, the browser picks the
+ * file from `sizes` alone, so this needn't match each render's own shape.
+ */
 const SLIDE_ART_PX = 1000;
 
 /**
@@ -342,7 +347,9 @@ function SlideArt({ slide }: { slide: Slide }) {
       // panel around it, and it leaves `object-contain` to do the fitting. Scaling
       // about the centre is what keeps a render put while it grows.
       style={{ transform: `scale(${slide.scale})` }}
-      className="object-contain"
+      // Above the stage's corner-accent lines, which are painted after it and
+      // otherwise streak across any opaque render that reaches the stage's edge.
+      className="z-1 object-contain"
     />
   );
 }

@@ -68,20 +68,22 @@ If you cannot tick **every** box, the task is **not** done.
 
 These versions were read from `package.json` and `node_modules`. Treat this table as truth.
 
-| Concern             | Actual technology                    | Notes                                                                |
-| ------------------- | ------------------------------------ | -------------------------------------------------------------------- |
-| Framework           | **Next.js 15.5.19**, App Router      | `src/app/**`. No Pages Router.                                       |
-| UI runtime          | **React 19.2.4**                     | Server Components are the default.                                   |
-| Language            | **TypeScript 5.9.3**, `strict: true` | `noEmit`. Alias `@/*` → `./src/*`.                                   |
-| Styling             | **Tailwind CSS v4.3.1**              | CSS-first. **There is no `tailwind.config.js`.**                     |
-| PostCSS             | `@tailwindcss/postcss`               | `postcss.config.mjs`.                                                |
-| Validation          | **Zod 4.4.3**                        | Used by the contact endpoint.                                        |
-| Transactional email | **Resend 6.14.0**                    | Server-side only.                                                    |
-| Package manager     | **pnpm 11.8.0**                      | `engines.node >= 20.9.0`, `.nvmrc` = 22.                             |
-| Lint                | **ESLint 9** flat config             | `next/core-web-vitals`, `next/typescript`, `eslint-config-prettier`. |
-| Format              | **Prettier 3.8.4**                   | + `prettier-plugin-tailwindcss` (auto class sorting).                |
-| Hosting             | **Vercel**                           | `vercel.json` sets framework + security headers.                     |
-| Tests               | **NONE CONFIGURED**                  | See §18. Do not fabricate a test command.                            |
+| Concern             | Actual technology                                    | Notes                                                                     |
+| ------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------- |
+| Framework           | **Next.js 15.5.19**, App Router                      | `src/app/**`. No Pages Router.                                            |
+| UI runtime          | **React 19.2.4**                                     | Server Components are the default.                                        |
+| Language            | **TypeScript 5.9.3**, `strict: true`                 | `noEmit`. Alias `@/*` → `./src/*`.                                        |
+| Styling             | **Tailwind CSS v4.3.1**                              | CSS-first. **There is no `tailwind.config.js`.**                          |
+| PostCSS             | `@tailwindcss/postcss`                               | `postcss.config.mjs`.                                                     |
+| Validation          | **Zod 4.4.3**                                        | Used by the contact endpoint.                                             |
+| Transactional email | **Resend 6.14.0**                                    | Server-side only.                                                         |
+| Database            | **Neon Postgres** via `@neondatabase/serverless` 1.2 | `src/lib/db.ts` (lazy `getSql()`). Contact messages; table auto-created.  |
+| Admin auth          | Env credentials + signed httpOnly cookie             | `src/lib/auth.ts` (Web Crypto HMAC), `src/middleware.ts` guards `/admin`. |
+| Package manager     | **pnpm 11.8.0**                                      | `engines.node >= 20.9.0`, `.nvmrc` = 22.                                  |
+| Lint                | **ESLint 9** flat config                             | `next/core-web-vitals`, `next/typescript`, `eslint-config-prettier`.      |
+| Format              | **Prettier 3.8.4**                                   | + `prettier-plugin-tailwindcss` (auto class sorting).                     |
+| Hosting             | **Vercel**                                           | `vercel.json` sets framework + security headers.                          |
+| Tests               | **NONE CONFIGURED**                                  | See §18. Do not fabricate a test command.                                 |
 
 ### 2.2 Technologies this project does NOT use
 
@@ -1597,11 +1599,15 @@ pnpm typecheck        # tsc --noEmit
 
 **Environment variables** (`.env` is gitignored; `.env.example` documents the keys):
 
-| Variable               | Scope           | Purpose                                         |
-| ---------------------- | --------------- | ----------------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL` | client + server | Public URL for metadata/OG. Optional on Vercel. |
-| `RESEND_API_KEY`       | **server only** | Resend API key. NEVER expose.                   |
-| `CONTACT_EMAIL`        | **server only** | Contact form recipient.                         |
+| Variable               | Scope           | Purpose                                                                             |
+| ---------------------- | --------------- | ----------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL` | client + server | Public URL for metadata/OG. Optional on Vercel.                                     |
+| `RESEND_API_KEY`       | **server only** | Resend API key. NEVER expose.                                                       |
+| `CONTACT_EMAIL`        | **server only** | Contact form recipient (optional: email is best-effort; messages are always saved). |
+| `DATABASE_URL`         | **server only** | Neon Postgres connection string. Added by the Vercel Neon integration.              |
+| `ADMIN_EMAIL`          | **server only** | Admin dashboard sign-in email.                                                      |
+| `ADMIN_PASSWORD`       | **server only** | Admin dashboard sign-in password.                                                   |
+| `ADMIN_SESSION_SECRET` | **server only** | ≥32 random chars; signs the admin session cookie.                                   |
 
 ---
 

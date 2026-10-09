@@ -398,15 +398,9 @@
   grid-template-columns: minmax(0, var(--service-card-max));
 }
 
-@media (min-width: 40rem) {
+@media (min-width: 64rem) {
   .service-grid {
-    grid-template-columns: repeat(2, minmax(0, var(--service-card-max)));
-  }
-}
-
-@media (min-width: 80rem) {
-  .service-grid {
-    grid-template-columns: repeat(4, minmax(0, var(--service-card-max)));
+    grid-template-columns: repeat(3, minmax(0, var(--service-card-max)));
   }
 }
 
@@ -444,6 +438,9 @@
  * separates them from the stage.
  */
 .hud-stage {
+  /* Its own stacking context, so the art lifted over the corner accent (see
+     `SlideArt`) stays inside the stage and never rises over the float cards. */
+  isolation: isolate;
   box-shadow: inset 0 1px 0 var(--gloss);
 }
 
@@ -2379,19 +2376,21 @@
 }
 
 /*
- * Phones and tablets: the centre card is 84% of the width at 4:3, and the
- * neighbours sit flat beside it with only an edge peeking in (they're clipped at
- * the stage's sides). That makes 84% × 3/4 = 63% of the width the stage's height.
+ * Cards are 16:9, the shape of the screenshots they show, so nothing is cropped.
+ *
+ * Phones and tablets: the centre card is 84% of the width, and the neighbours sit
+ * flat beside it with only an edge peeking in (they're clipped at the stage's
+ * sides). That makes 84% × 9/16 = 47.25% of the width the stage's height.
  */
 .project-carousel-stage {
   --card-width: 84%;
-  --card-ratio: 4 / 3;
+  --card-ratio: 16 / 9;
   /* Puts each neighbour's inner edge about 6% inside the stage: a peek. */
   --side-shift: 97%;
   --side-scale: 0.9;
   --side-turn: 0deg;
   position: relative;
-  aspect-ratio: 100 / 63;
+  aspect-ratio: 100 / 47.25;
   overflow-x: clip;
   perspective: 1600px;
 }
@@ -2399,11 +2398,12 @@
 @media (min-width: 64rem) {
   .project-carousel-stage {
     --card-width: 50%;
-    --card-ratio: 12 / 5;
+    --card-ratio: 16 / 9;
     --side-shift: 66%;
     --side-scale: 0.85;
     --side-turn: 18deg;
-    aspect-ratio: 24 / 5;
+    /* A 50%-wide 16:9 card: 50% × 9/16 = 9/32 of the width tall. */
+    aspect-ratio: 32 / 9;
     overflow-x: visible;
   }
 }
@@ -2638,7 +2638,16 @@
   outline-offset: -2px;
 }
 
-/* Below `lg` the card is narrower, so its text stacks over the link. */
+/*
+ * Below `lg` the card is narrower, so its text stacks over the link. On a phone
+ * the tagline is dropped too, so the overlay doesn't cover most of the screenshot.
+ */
+@media (max-width: 39.999rem) {
+  .project-card-tagline {
+    display: none;
+  }
+}
+
 @media (max-width: 63.999rem) {
   .project-card-body {
     flex-direction: column;
@@ -2704,24 +2713,27 @@
 }
 
 /*
- * The stage is 5/24 of the carousel's width tall on `lg`, so its middle is 5/48 of
+ * The stage is 9/32 of the carousel's width tall on `lg`, so its middle is 9/64 of
  * the width down (`cqw` reads the carousel's own width).
+ *
+ * Scoped to the carousel's own nav row: the full-screen preview reuses the arrow's
+ * look, and its arrows must stay where they are.
  */
 @media (min-width: 64rem) {
   .project-carousel-nav {
     margin-top: 2rem;
   }
 
-  .project-carousel-arrow {
+  .project-carousel-nav > .project-carousel-arrow {
     position: absolute;
-    top: calc(100cqw * 5 / 48);
+    top: calc(100cqw * 9 / 64);
     width: 3.25rem;
     height: 3.25rem;
     font-size: 1.25rem;
     transform: translateY(-50%);
   }
 
-  .project-carousel-arrow:active {
+  .project-carousel-nav > .project-carousel-arrow:active {
     transform: translateY(-50%) scale(0.94);
   }
 
@@ -3050,4 +3062,605 @@
     var(--accent-deep)
   );
   transform: skewX(-25deg);
+}
+
+/*
+ * Phones: the 16:9 card is small, so its overlay shrinks to one slim row along the
+ * bottom edge (title left, link right) and the badge is dropped, leaving the
+ * screenshot itself on show. After the `lg` rule above, so it wins on phones.
+ */
+@media (max-width: 39.999rem) {
+  .project-card-badge {
+    display: none;
+  }
+
+  .project-card-body {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 0.75rem;
+    padding: 0.75rem 0.9rem;
+  }
+
+  .project-card-title {
+    font-size: 0.95rem;
+  }
+
+  .project-card-link {
+    gap: 0.35rem;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+  }
+}
+
+/**
+ * Admin panel shell: the sidebar and the page. From `lg` the sidebar is a fixed
+ * column the full height of the screen beside the page; below that it's a compact
+ * bar across the top.
+ */
+.admin-shell {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.admin-main {
+  flex: 1;
+  min-width: 0;
+  padding: 2rem 1rem 4rem;
+}
+
+.admin-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-default);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+.admin-sidebar-nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.admin-sidebar-footer {
+  display: none;
+}
+
+@media (min-width: 40rem) {
+  .admin-main {
+    padding-inline: 2rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .admin-shell {
+    flex-direction: row;
+  }
+
+  .admin-main {
+    padding: 3rem 3rem 5rem;
+  }
+
+  .admin-sidebar {
+    position: sticky;
+    top: 0;
+    width: 16rem;
+    height: 100dvh;
+    flex-shrink: 0;
+    gap: 2rem;
+    padding: 2rem 1.25rem;
+    border-right: 1px solid var(--border-default);
+    border-bottom: 0;
+  }
+
+  .admin-sidebar-nav {
+    flex: 1;
+    flex-direction: column;
+  }
+
+  .admin-sidebar-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+.admin-nav-link {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+  padding: 0 0.875rem;
+  border: 1px solid transparent;
+  border-radius: 0.625rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease;
+}
+
+@media (min-width: 64rem) {
+  .admin-nav-link {
+    flex: 0 0 auto;
+  }
+}
+
+.admin-nav-link:hover {
+  background: var(--surface-translucent);
+  color: var(--text-primary);
+}
+
+.admin-nav-link-active {
+  border-color: var(--border-accent);
+  background: var(--accent-soft);
+  color: var(--text-primary);
+  box-shadow: 0 0 1rem var(--glow-edge);
+}
+
+.admin-nav-link-active :where(svg) {
+  color: var(--accent-primary);
+}
+
+.admin-nav-link:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.admin-nav-count {
+  min-width: 1.5rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 9999px;
+  background: var(--accent-primary);
+  color: var(--background-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/**
+ * `Modal`: a native `<dialog>`, centred over a blurred, dimmed page. It fades and
+ * rises in when opened; the page behind can't scroll while it's open.
+ */
+.modal {
+  max-width: min(72rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--border-accent);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--surface-elevated) 96%, transparent);
+  color: var(--text-primary);
+  box-shadow:
+    0 2rem 4rem color-mix(in srgb, var(--background-primary) 75%, transparent),
+    0 0 2.5rem var(--glow-edge);
+}
+
+.modal[open] {
+  animation: modal-in 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.modal::backdrop {
+  background: color-mix(in srgb, var(--background-primary) 80%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.modal[open]::backdrop {
+  animation: modal-backdrop-in 260ms ease;
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.98);
+  }
+}
+
+@keyframes modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+html:has(.modal[open]) {
+  overflow: hidden;
+}
+
+/*
+ * `ImageLightbox`: an image full screen. It keeps its 16:9 shape and is as large as
+ * fits: the full width of the dialog, or 68% of the viewport's height,
+ * whichever is smaller, so the details below stay on screen too.
+ */
+.lightbox {
+  width: min(72rem, calc(100vw - 2rem));
+}
+
+.lightbox-body {
+  position: relative;
+  padding: 1rem;
+}
+
+.lightbox-frame {
+  position: relative;
+  width: min(100%, calc(68dvh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  margin-inline: auto;
+  overflow: hidden;
+  border-radius: 0.625rem;
+  background: var(--background-secondary);
+}
+
+.lightbox-image {
+  animation: lightbox-image-in 300ms ease;
+}
+
+@keyframes lightbox-image-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.lightbox-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  padding: 1.25rem 0.25rem 0.25rem;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--border-accent);
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--background-primary) 75%, transparent);
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease;
+}
+
+.lightbox-close:hover {
+  border-color: var(--accent-primary);
+  background: var(--accent-soft);
+}
+
+.lightbox-close:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+@media (min-width: 40rem) {
+  .lightbox-body {
+    padding: 1.5rem;
+  }
+
+  .lightbox-close {
+    top: 2rem;
+    right: 2rem;
+  }
+}
+
+/* Cut-out art (on transparency) floats inside the lightbox frame, like on the cards. */
+.lightbox-image-inset {
+  padding: 6%;
+}
+
+/**
+ * `ImageGallery`: thumbnails in a responsive grid. Each is a button that opens the
+ * lightbox; it lifts and brightens its edge on hover and focus.
+ */
+.image-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  gap: 1rem;
+}
+
+.image-gallery-item {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--border-glass);
+  border-radius: 0.75rem;
+  background: var(--surface);
+  cursor: zoom-in;
+  transition:
+    transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 300ms ease,
+    box-shadow 300ms ease;
+}
+
+.image-gallery-item:hover,
+.image-gallery-item:focus-visible {
+  transform: translateY(-3px);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 1.5rem var(--glow-edge);
+}
+
+.image-gallery-item:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 3px;
+}
+
+/**
+ * Game page hero: a rounded band with the game's art as a blurred, darkened
+ * backdrop, and the text and a sharp screenshot over it. On phones and tablets the
+ * screenshot comes first, so the page opens on the game; from `lg` the two sit
+ * side by side.
+ */
+.game-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid var(--border-accent);
+  border-radius: 1.25rem;
+  background: var(--surface);
+  box-shadow: 0 0 2.5rem var(--glow-edge);
+}
+
+.game-hero-backdrop {
+  z-index: -2;
+  opacity: 0.55;
+  filter: blur(28px) saturate(1.2);
+  /* Scaled up so the blur's soft edges fall outside the band. */
+  transform: scale(1.2);
+}
+
+.game-hero-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(
+      to right,
+      color-mix(in srgb, var(--background-primary) 88%, transparent) 0%,
+      color-mix(in srgb, var(--background-primary) 55%, transparent) 55%,
+      color-mix(in srgb, var(--background-primary) 30%, transparent) 100%
+    ),
+    linear-gradient(
+      to top,
+      color-mix(in srgb, var(--background-primary) 60%, transparent),
+      transparent 50%
+    );
+}
+
+.game-hero-grid {
+  display: grid;
+  gap: 1.75rem;
+  padding: 1rem;
+}
+
+/* Phones and tablets: the screenshot leads. */
+.game-hero-media {
+  order: -1;
+}
+
+.game-hero-shot {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 55%, transparent);
+  border-radius: 0.875rem;
+  box-shadow:
+    0 0 2rem var(--accent-glow),
+    0 1.5rem 3rem color-mix(in srgb, var(--background-primary) 60%, transparent);
+}
+
+@media (min-width: 40rem) {
+  .game-hero-grid {
+    padding: 1.75rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .game-hero-grid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    align-items: center;
+    gap: 3rem;
+    padding: 3rem;
+  }
+
+  .game-hero-media {
+    order: 0;
+  }
+
+  /* A slight tilt toward the text, as if the screen is presented to the reader. */
+  .game-hero-shot {
+    transform: perspective(1400px) rotateY(-6deg);
+    transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .game-hero-shot:hover {
+    transform: perspective(1400px) rotateY(0deg);
+  }
+}
+
+@media (min-width: 64rem) and (prefers-reduced-motion: reduce) {
+  .game-hero-shot {
+    transform: none;
+  }
+}
+
+/**
+ * `PortfolioGrid` tile: the project's 16:9 art with its discipline over it, and the
+ * title, tags and action under it. The action's `::after` covers the whole tile, so
+ * the tile is one big target while staying a single link or button for assistive
+ * technology. It lifts and lights its edge on hover and keyboard focus.
+ */
+.portfolio-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border-glass);
+  border-radius: 1rem;
+  background: var(--surface);
+  transition:
+    transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 300ms ease,
+    box-shadow 300ms ease;
+}
+
+.portfolio-tile:hover,
+.portfolio-tile:has(:focus-visible) {
+  transform: translateY(-4px);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 1.75rem var(--glow-edge);
+}
+
+.portfolio-tile:has(:focus-visible) {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 3px;
+}
+
+.portfolio-tile-art {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: radial-gradient(
+    ellipse at 50% 35%,
+    color-mix(in srgb, var(--accent-primary) 14%, transparent),
+    transparent 70%
+  );
+}
+
+.portfolio-tile-image {
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.portfolio-tile-image-contain {
+  padding: 6%;
+}
+
+.portfolio-tile:hover .portfolio-tile-image {
+  transform: scale(1.04);
+}
+
+.portfolio-tile-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--background-primary) 55%, transparent),
+    transparent 35%
+  );
+}
+
+.portfolio-tile-category,
+.portfolio-tile-featured {
+  position: absolute;
+  top: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--border-accent);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--background-primary) 75%, transparent);
+  color: var(--accent-primary);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.portfolio-tile-category {
+  left: 0.875rem;
+  padding: 0.35rem 0.7rem;
+}
+
+.portfolio-tile-featured {
+  right: 0.875rem;
+  padding: 0.35rem;
+  box-shadow: 0 0 1rem var(--glow-edge);
+}
+
+.portfolio-tile-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1.25rem 1.25rem 1.375rem;
+}
+
+.portfolio-tile-title {
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.portfolio-tile-tags {
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.portfolio-tile-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
+  color: var(--accent-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+/* The tile's outline shows focus instead. */
+.portfolio-tile-action:focus-visible {
+  outline: none;
+}
+
+.portfolio-tile-action::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.portfolio-tile-action :where(svg) {
+  transition: transform 200ms ease;
+}
+
+.portfolio-tile:hover .portfolio-tile-action :where(svg) {
+  transform: translateX(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-tile,
+  .portfolio-tile-image,
+  .portfolio-tile-action :where(svg) {
+    transition: none;
+  }
+
+  .portfolio-tile:hover,
+  .portfolio-tile:has(:focus-visible),
+  .portfolio-tile:hover .portfolio-tile-image {
+    transform: none;
+  }
 }

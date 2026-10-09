@@ -5,11 +5,9 @@ import { z } from "zod";
  * checked by the server, so the two can't offer or accept different options (§14).
  */
 export const PROJECT_TYPES = [
+  "Full Game Development",
   "Game UI / UX",
   "Scripting",
-  "3D Modeling",
-  "Visual Effects",
-  "Full Game",
   "Other",
 ] as const;
 
@@ -33,4 +31,20 @@ export type ContactFormValues = z.infer<typeof contactSchema>;
 export const contactResponseSchema = z.object({
   ok: z.literal(true).optional(),
   error: z.string().optional(),
+});
+
+/**
+ * Where a contact message stands in the admin dashboard. One list, read by the
+ * database layer, the server actions and the dashboard's filters (§14).
+ */
+export const MESSAGE_STATUSES = ["new", "read", "replied"] as const;
+
+export const messageStatusSchema = z.enum(MESSAGE_STATUSES);
+
+export type MessageStatus = z.infer<typeof messageStatusSchema>;
+
+/** The admin sign-in form. Checked on the server; the client check is courtesy. */
+export const adminLoginSchema = z.object({
+  email: z.email(),
+  password: z.string().min(1),
 });

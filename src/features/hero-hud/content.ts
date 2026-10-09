@@ -11,7 +11,7 @@ export const HUD_CONTENT: Record<
   HeroSlideId,
   Record<HudCardId, HudCardContent>
 > = {
-  "character-hud": {
+  "ui-game-menu": {
     "top-right": {
       widget: "capability",
       props: {
@@ -19,7 +19,7 @@ export const HUD_CONTENT: Record<
         level: 85,
         features: [
           { icon: "layout", label: "HUDs & menus" },
-          { icon: "layers", label: "Inventory systems" },
+          { icon: "home", label: "Lobby & hub screens" },
           { icon: "palette", label: "Themed visual kits" },
         ],
       },
@@ -32,7 +32,7 @@ export const HUD_CONTENT: Record<
         items: [
           { label: "Buttons", count: 14, tone: "cool" },
           { label: "Cards", count: 12, tone: "strong" },
-          { label: "Forms", count: 10, tone: "deep" },
+          { label: "Stat bars", count: 10, tone: "deep" },
           { label: "Navigation", count: 12, tone: "warm" },
         ],
       },
@@ -70,64 +70,6 @@ export const HUD_CONTENT: Record<
             alt: "The same landing page adapted for a phone",
           },
         ],
-      },
-    },
-  },
-  "command-outpost": {
-    "top-right": {
-      widget: "uiKit",
-      props: {
-        title: "Build Menu",
-        elements: [
-          {
-            kind: "icon",
-            id: "blender",
-            icon: "blender",
-            tone: "neutral",
-            selected: true,
-          },
-          { kind: "icon", id: "maya", icon: "maya", tone: "cool" },
-          { kind: "icon", id: "cinema4d", icon: "cinema4d", tone: "neutral" },
-          { kind: "swatch", id: "swatch", from: "cool", to: "dim" },
-          { kind: "icon", id: "roblox", icon: "roblox", tone: "warm" },
-          { kind: "icon", id: "unity", icon: "unity", tone: "cool" },
-          { kind: "icon", id: "godot", icon: "godot", tone: "dim" },
-          { kind: "empty", id: "empty" },
-        ],
-      },
-    },
-    "mid-right": {
-      widget: "capability",
-      props: {
-        title: "3D Modeling",
-        level: 65,
-        features: [
-          { icon: "cube", label: "Game-ready assets" },
-          { icon: "layers", label: "Optimized topology" },
-          { icon: "palette", label: "Stylized or realistic" },
-        ],
-      },
-    },
-    "bottom-left": {
-      widget: "metric",
-      props: {
-        title: "Polygons",
-        value: "24K",
-        level: 62,
-        tiers: ["Low", "Med", "High"],
-        activeTier: "Med",
-      },
-    },
-    "bottom-right": {
-      widget: "style",
-      props: {
-        title: "Materials",
-        samples: [
-          { id: "blender", tone: "cool", icon: "blender" },
-          { id: "maya", tone: "warm", icon: "maya" },
-          { id: "cinema4d", tone: "dim", icon: "cinema4d" },
-        ],
-        caption: "Hard-surface PBR, built to snap together.",
       },
     },
   },
@@ -183,6 +125,68 @@ export const HUD_CONTENT: Record<
             { length: 4, tone: "deep" },
             { length: 34 },
           ],
+        ],
+      },
+    },
+  },
+  "ui-inventory": {
+    "top-right": {
+      widget: "capability",
+      props: {
+        title: "Loadout UI",
+        level: 80,
+        features: [
+          { icon: "bag", label: "Grid & list views" },
+          { icon: "layers", label: "Sort & filter" },
+          { icon: "badge", label: "Rarity & item stats" },
+        ],
+      },
+    },
+    "mid-right": {
+      // The screen's "8 / 24": the ring fills to the slots in use.
+      widget: "breakdown",
+      props: {
+        title: "Item Slots",
+        capacity: 24,
+        items: [
+          { label: "Weapons", count: 1, tone: "cool" },
+          { label: "Armor", count: 2, tone: "strong" },
+          { label: "Consumables", count: 2, tone: "deep" },
+          { label: "Quest items", count: 3, tone: "warm" },
+        ],
+      },
+    },
+    "bottom-left": {
+      // The selected Bronze Sword: a Common weapon at +15 attack.
+      widget: "metric",
+      props: {
+        title: "Attack",
+        value: "+15",
+        level: 40,
+        tiers: ["Common", "Rare", "Epic"],
+        activeTier: "Common",
+      },
+    },
+    "bottom-right": {
+      // The item grid, down to its one empty slot.
+      widget: "uiKit",
+      props: {
+        title: "Item Grid",
+        elements: [
+          {
+            kind: "icon",
+            id: "bag",
+            icon: "bag",
+            tone: "neutral",
+            selected: true,
+          },
+          { kind: "icon", id: "gem", icon: "sparkle", tone: "cool" },
+          { kind: "icon", id: "badge", icon: "badge", tone: "warm" },
+          { kind: "swatch", id: "rarity", from: "cool", to: "warm" },
+          { kind: "icon", id: "star", icon: "star", tone: "neutral" },
+          { kind: "icon", id: "bolt", icon: "bolt", tone: "cool" },
+          { kind: "icon", id: "gamepad", icon: "gamepad", tone: "dim" },
+          { kind: "empty", id: "empty" },
         ],
       },
     },

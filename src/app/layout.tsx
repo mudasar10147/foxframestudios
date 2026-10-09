@@ -1,6 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Footer } from "@/components/layout/Footer";
-import { Navbar } from "@/components/layout/Navbar";
 import { siteConfig } from "@/constants/site";
 import { fontVariables } from "@/lib/fonts";
 import "@/styles/globals.css";
@@ -49,11 +47,12 @@ export default function RootLayout({
             aria-hidden
             className="texture-dots pointer-events-none absolute inset-0 opacity-40"
           />
-          <Navbar />
-          <main id="main-content" className="flex flex-1 flex-col">
-            {children}
-          </main>
-          <Footer />
+          {/*
+           * Each area brings its own chrome: the public pages their header and
+           * footer (`(site)/layout.tsx`), the admin panel its sidebar. Both render
+           * the `#main-content` the skip link above points at.
+           */}
+          {children}
         </div>
       </body>
     </html>

@@ -20,8 +20,18 @@ export interface PortfolioProject {
   /** Shown under the title on the side cards, e.g. Exploration / Quests / Systems. */
   tags: readonly string[];
   image: ProjectImage;
-  /** Where "View project" goes. */
-  href: string;
+  /** A sentence or two about the work, shown under the screen in the full-screen preview. */
+  description?: string;
+  /**
+   * The project's own page. When set, the card's button is "View project" and goes
+   * there; without one, the button is "View full screen" and opens the preview.
+   */
+  href?: string;
+  /**
+   * A stand-in, not real work: shown on the home page's carousel so the tab isn't
+   * empty, but left off the portfolio page, where clients look closely.
+   */
+  placeholder?: boolean;
   /** Adds the "Featured" badge. */
   featured?: boolean;
 }

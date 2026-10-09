@@ -1,6 +1,6 @@
 import Image from "next/image";
-import type { CSSProperties } from "react";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/utils";
 import type { PortfolioProject } from "../types";
@@ -31,13 +31,16 @@ export interface ProjectCardProps {
   positionLabel: string;
   /** Called when a side card is clicked, to bring it to the centre. */
   onFocusRequest: () => void;
+  /** Called by "View full screen" (projects without a page), to open the preview. */
+  onOpen: () => void;
 }
 
 /**
  * One slide of the portfolio carousel: the project's art with its title over it.
  *
  * The same card plays every role. In the centre it shows the Featured badge, the
- * tagline and "View project". At the sides it's tilted and dimmed, shows the tags
+ * tagline and a button: "View project" to the project's own page when it has one,
+ * otherwise "View full screen", which opens it in the lightbox. At the sides it's tilted and dimmed, shows the tags
  * instead, and is itself a button that brings it to the centre. Everything that
  * changes between those roles is CSS on `data-position` and `--card-offset`, so a
  * card moving between them slides instead of re-rendering.
@@ -48,6 +51,7 @@ export function ProjectCard({
   teleport = false,
   positionLabel,
   onFocusRequest,
+  onOpen,
 }: ProjectCardProps) {
   const position = positionFor(offset);
   const isCenter = position === "center";
@@ -71,8 +75,9 @@ export function ProjectCard({
           src={image.src}
           alt={image.alt}
           fill
-          // The centre card is half the container at `lg`, and full width below it.
-          sizes="(min-width: 1024px) 50vw, 100vw"
+          // The centre card is half the container at `lg` (at most ~640px once the
+          // container hits its 80rem cap) and 84% of the width below it.
+          sizes="(min-width: 1280px) 640px, (min-width: 1024px) 50vw, 84vw"
           className={cn(
             "project-card-image",
             image.fit === "contain"
@@ -99,14 +104,26 @@ export function ProjectCard({
           <p className="project-card-tags">{project.tags.join(" • ")}</p>
         </div>
 
-        <Link
-          href={project.href}
-          tabIndex={isCenter ? undefined : -1}
-          className="project-card-link"
-        >
-          View project
-          <Icon name="chevronRight" />
-        </Link>
+        {project.href ? (
+          <Link
+            href={project.href}
+            tabIndex={isCenter ? undefined : -1}
+            className="project-card-link"
+          >
+            View project
+            <Icon name="chevronRight" />
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={onOpen}
+            tabIndex={isCenter ? undefined : -1}
+            className="project-card-link"
+          >
+            View full screen
+            <Icon name="chevronRight" />
+          </button>
+        )}
       </div>
 
       {/* At the sides, the whole card is a button that brings it to the centre. */}

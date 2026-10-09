@@ -42,9 +42,7 @@ export function ContactDetails({
   className,
 }: ContactDetailsProps) {
   return (
-    <div
-      className={cn("glass-card hover-reveal-scope p-6 sm:p-10", className)}
-    >
+    <div className={cn("glass-card hover-reveal-scope p-6 sm:p-10", className)}>
       <p className="text-accent-primary text-xs font-semibold tracking-[0.2em] uppercase">
         {eyebrow}
       </p>

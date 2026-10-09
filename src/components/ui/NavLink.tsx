@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { useIsActive } from "@/hooks/useIsActive";
 import { cn } from "@/lib/utils";
 
 export interface NavLinkProps {
@@ -41,10 +41,7 @@ export function NavLink({
   onNavigate,
   children,
 }: NavLinkProps) {
-  const pathname = usePathname();
-  const isActive = exact
-    ? pathname === href
-    : pathname === href || pathname.startsWith(`${href}/`);
+  const isActive = useIsActive(href, exact);
 
   return (
     <Link
