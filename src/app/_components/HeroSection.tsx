@@ -18,14 +18,13 @@ export function HeroSection() {
       <Container className="relative grid items-center gap-14 py-16 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10 lg:py-20">
         <div>
           <Rise>
-            <h1 className="text-5xl leading-none font-extrabold tracking-tight uppercase sm:text-6xl lg:text-7xl">
-              From
-              <br />
-              <span className="text-accent-primary">Idea</span>
-              <br />
-              To
-              <br />
-              <span className="text-accent-primary">Launch</span>
+            {/* No forced breaks: the phrase wraps where the width allows, and
+                `text-balance` keeps the lines even at every size. */}
+            <h1 className="text-4xl leading-none font-extrabold tracking-tight text-balance uppercase sm:text-6xl lg:text-5xl xl:text-7xl">
+              We Build Games{" "}
+              <span className="text-accent-primary whitespace-nowrap">
+                Players Love
+              </span>
             </h1>
           </Rise>
 
