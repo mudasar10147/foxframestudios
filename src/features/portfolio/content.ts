@@ -136,6 +136,66 @@ export const PORTFOLIO_CATEGORIES: readonly PortfolioCategory[] = [
         description:
           "A clear settings panel with on/off toggles, a volume slider and a graphics quality selector, built for quick changes.",
       },
+      {
+        id: "missions-board",
+        title: "Missions Board",
+        tagline: ["Track", "Complete", "Claim"],
+        tags: ["Missions", "Progress", "Rewards"],
+        image: {
+          src: "/work/ui/missions-board.webp",
+          alt: "A red Missions panel with daily and weekly tabs, progress bars, coin rewards, Go and Claim buttons, and a milestone track",
+        },
+        description:
+          "A missions panel with daily and weekly tabs, progress bars and coin rewards per task, a Claim button that lights up when a mission is done, and a milestone track with a countdown to new missions.",
+      },
+      {
+        id: "magic-inventory",
+        title: "Magic Inventory",
+        tagline: ["Browse", "Inspect", "Equip"],
+        tags: ["Inventory", "Rarity", "Stats"],
+        image: {
+          src: "/work/ui/magic-inventory.webp",
+          alt: "A blue inventory with category tabs, search, an item grid with locked slots and a Magic Sword detail panel with stat bars",
+        },
+        description:
+          "A bright inventory with category tabs, item search, a slot counter and a grid with locked slots, beside a detail panel showing the item's rarity, attack, defense and speed bars with equip and delete actions.",
+      },
+      {
+        id: "sweet-shop",
+        title: "Sweet Shop",
+        tagline: ["Browse", "Bundle", "Buy"],
+        tags: ["Shop", "Bundles", "Monetization"],
+        image: {
+          src: "/work/ui/sweet-shop.webp",
+          alt: "A purple casual-game shop with Featured, Boosts and Coins tabs, a Starter Pack bundle and smaller item cards",
+        },
+        description:
+          "A casual-game shop with Featured, Boosts and Coins tabs, a hero Starter Pack bundle listing what's inside, smaller item cards with clear prices, and the coin balance always in view.",
+      },
+      {
+        id: "moonlit-daily-rewards",
+        title: "Moonlit Daily Rewards",
+        tagline: ["Log In", "Claim", "Return"],
+        tags: ["Rewards", "Dark Fantasy", "Streaks"],
+        image: {
+          src: "/work/ui/moonlit-daily-rewards.webp",
+          alt: "A black-and-white dark fantasy daily rewards screen with seven days, a Today ribbon, a Legendary Day 7 reward and a login streak",
+        },
+        description:
+          "A dark fantasy take on daily rewards: a monochrome seven-day track with claimed days, a Today ribbon and a Legendary Day 7 chest, plus the login streak and a countdown to the next reward.",
+      },
+      {
+        id: "sunny-daily-rewards",
+        title: "Sunny Daily Rewards",
+        tagline: ["Log In", "Collect", "Unlock"],
+        tags: ["Rewards", "Casual", "Streaks"],
+        image: {
+          src: "/work/ui/sunny-daily-rewards.webp",
+          alt: "A yellow casual daily rewards screen with checked-off days, a highlighted Today reward and a treasure chest for Day 7",
+        },
+        description:
+          "A bright casual daily rewards screen with checked-off days, a highlighted Today reward, a treasure chest bundle for Day 7, and the login streak and next-reward timer beside a big Claim button.",
+      },
     ],
   },
   {
