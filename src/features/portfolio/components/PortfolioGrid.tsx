@@ -11,10 +11,27 @@ import { Icon } from "@/components/ui/Icon";
 import { LoopVideo } from "@/components/ui/LoopVideo";
 import { cn } from "@/lib/utils";
 import type { PortfolioEntry } from "../entries";
+import type { PortfolioGridColumns } from "../types";
 
 export interface PortfolioGridProps {
   entries: readonly PortfolioEntry[];
+  columns?: PortfolioGridColumns;
 }
+
+// One column below `md`, two to `xl`; `sizes` follows the 80rem container from there.
+const columnLayouts: Record<
+  PortfolioGridColumns,
+  { grid: string; sizes: string }
+> = {
+  2: {
+    grid: "md:grid-cols-2",
+    sizes: "(min-width: 1280px) 620px, (min-width: 768px) 50vw, 100vw",
+  },
+  3: {
+    grid: "md:grid-cols-2 xl:grid-cols-3",
+    sizes: "(min-width: 1280px) 400px, (min-width: 768px) 50vw, 100vw",
+  },
+};
 
 function toLightboxItem(entry: PortfolioEntry): LightboxItem {
   return {
@@ -31,21 +48,22 @@ function toLightboxItem(entry: PortfolioEntry): LightboxItem {
 
 /**
  * The portfolio page's project grid: one 16:9 tile per project, one column on
- * phones, two from `md`, three from `xl`.
+ * phones, two from `md`, and with `columns={3}` three from `xl`.
  *
  * A project with its own page links to it ("View project"). The others open in the
  * full-screen preview, which steps through just those, in the order shown — so with
  * a filter applied it flicks through that discipline only. The whole tile is the
  * hit area: the action's `::after` stretches over it.
  */
-export function PortfolioGrid({ entries }: PortfolioGridProps) {
+export function PortfolioGrid({ entries, columns = 3 }: PortfolioGridProps) {
   // Only projects without a page are previewed; the rest navigate away.
   const previewable = entries.filter((entry) => !entry.href);
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
+  const layout = columnLayouts[columns];
 
   return (
     <>
-      <ul className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <ul className={cn("grid gap-6", layout.grid)}>
         {entries.map((entry) => (
           <li key={entry.id}>
             <article className="portfolio-tile hover-reveal-scope">
@@ -66,8 +84,7 @@ export function PortfolioGrid({ entries }: PortfolioGridProps) {
                     src={entry.image.src}
                     alt={entry.image.alt}
                     fill
-                    // One column below `md`, two to `xl`, then three in the 80rem container.
-                    sizes="(min-width: 1280px) 400px, (min-width: 768px) 50vw, 100vw"
+                    sizes={layout.sizes}
                     className={cn(
                       "portfolio-tile-image",
                       entry.image.fit === "contain"

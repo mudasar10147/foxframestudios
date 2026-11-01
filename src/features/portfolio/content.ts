@@ -38,6 +38,7 @@ export const PORTFOLIO_CATEGORIES: readonly PortfolioCategory[] = [
     id: "ui-ux",
     label: "UI/UX",
     icon: "monitor",
+    gridColumns: 2,
     projects: [
       {
         id: "abilities",
@@ -196,12 +197,37 @@ export const PORTFOLIO_CATEGORIES: readonly PortfolioCategory[] = [
         description:
           "A bright casual daily rewards screen with checked-off days, a highlighted Today reward, a treasure chest bundle for Day 7, and the login streak and next-reward timer beside a big Claim button.",
       },
+      {
+        id: "creature-battle-hud",
+        title: "Creature Battle HUD",
+        tagline: ["Fight", "Catch", "Run"],
+        tags: ["HUD", "Combat", "Creatures"],
+        image: {
+          src: "/work/ui/creature-battle-hud.webp",
+          alt: "A dark creature battle HUD with player and enemy health bars, team slot columns and a four-point gem menu for Fight, Team, Catch and Run",
+        },
+        description:
+          "A turn-based battle HUD with mirrored player and enemy status plates, HP and EXP bars, team slots down each side, and a four-point gem menu that puts Fight, Team, Catch and Run under one thumb.",
+      },
+      {
+        id: "horse-stable",
+        title: "Horse Stable",
+        tagline: ["Browse", "Compare", "Spawn"],
+        tags: ["Collection", "Rarity", "Stats"],
+        image: {
+          src: "/work/ui/horse-stable.webp",
+          alt: "A wooden Your Horses stable screen with filters, a grid of horse cards with rarity badges and a detail panel with stat bars and a Spawn Horse button",
+        },
+        description:
+          "A carved-wood stable screen with gender and rarity filters, search and sorting, horse cards with stat bars, and a detail panel showing breed, coat and personality beside a big Spawn Horse button.",
+      },
     ],
   },
   {
     id: "scripting",
     label: "Scripting",
     icon: "code",
+    gridColumns: 2,
     projects: [
       {
         id: "auto-climb",

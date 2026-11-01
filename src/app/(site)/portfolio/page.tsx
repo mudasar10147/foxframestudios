@@ -122,7 +122,7 @@ export default async function PortfolioPage({
 
         <div className="mt-8">
           {shown.length > 0 ? (
-            <PortfolioGrid entries={shown} />
+            <PortfolioGrid entries={shown} columns={active?.gridColumns} />
           ) : (
             <EmptyState
               icon={active?.icon ?? "layers"}

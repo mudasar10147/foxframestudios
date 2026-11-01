@@ -40,10 +40,15 @@ export interface PortfolioProject {
   featured?: boolean;
 }
 
+/** Widest layout of the portfolio page's grid. */
+export type PortfolioGridColumns = 2 | 3;
+
 export interface PortfolioCategory {
   /** Stable key, also the tab's value. */
   id: string;
   label: string;
   icon: IconName;
+  /** Columns the portfolio page's grid uses when filtered to this category. */
+  gridColumns?: PortfolioGridColumns;
   projects: readonly PortfolioProject[];
 }
